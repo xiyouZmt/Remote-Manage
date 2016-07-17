@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/color_f">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_f"
+        android:layout_margin="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:padding="15dp"
+            android:id="@+id/linear_folder"
+            android:background="@drawable/pic_dir">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:layout_marginBottom="10dp"
+                android:id="@+id/folderView" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/linear_folder"
+            android:id="@+id/folderName"
+            android:textSize="14sp"
+            android:textColor="@color/color_0"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/linear_folder"
+            android:layout_alignEnd="@+id/linear_folder"
+            android:id="@+id/folderCount"
+            android:textSize="14sp"
+            android:textColor="@color/color_0"/>
+
+    </RelativeLayout>
+
+</LinearLayout>

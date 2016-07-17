@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.manager" >
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <application
+        android:name=".Application.App"
+        android:allowBackup="true"
+        android:icon="@drawable/filemanager"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <application android:name=".Activity.MyApplication" />
+
+        <activity
+            android:name=".Activity.HomeActivity"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".Activity.MusicList" >
+        </activity>
+        <activity android:name=".Activity.VideoList" >
+        </activity>
+        <activity android:name=".Activity.WordList" >
+        </activity>
+        <activity android:name=".Activity.ImageFolderList" >
+        </activity>
+        <activity android:name=".Activity.ImageList" >
+        </activity>
+        <activity android:name=".Activity.Storage" >
+        </activity>
+        <activity android:name=".Activity.OperateFile" >
+        </activity>
+        <activity
+            android:name=".Activity.MouseActivity"
+            android:label="@string/title_activity_mouse" >
+        </activity>
+        <activity
+            android:name=".Activity.DriverList"
+            android:label="@string/title_activity_driver_list" >
+        </activity>
+    </application>
+
+</manifest>

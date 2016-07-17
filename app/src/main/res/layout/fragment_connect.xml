@@ -1,0 +1,82 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_e"
+    android:orientation="vertical">
+
+    <include layout="@layout/actionbar"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/color_f">
+
+        <TextView
+            android:layout_width="65dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:id="@+id/login_text_count"
+            android:text="IP :"
+            android:textSize="16sp" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/login_text_count"
+            android:layout_marginRight="40dp"
+            android:id="@+id/count"
+            android:background="@null"
+            android:hint="请输入局域网IP"
+            android:textSize="15sp"
+            android:textStyle="italic"
+            android:textColorHint="#aaaaaa"/>
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="15dp"
+            android:layout_centerVertical="true"
+            android:id="@+id/clear_Count"
+            android:background="@drawable/clear"/>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.example.manager.CheckBox.SmoothCheckBox
+            android:layout_width="26dp"
+            android:layout_height="31dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/SmoothCheckBox"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_gravity="center_vertical"
+            android:text="自动连接"
+            android:textSize="15sp"/>
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="49dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="15dp"
+        android:id="@+id/connect"
+        android:background="@drawable/connect_device"
+        android:text="连接"
+        android:textSize="18sp"
+        android:textColor="#ffffff"/>
+
+</LinearLayout>

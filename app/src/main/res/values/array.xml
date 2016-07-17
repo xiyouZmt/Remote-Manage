@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="power">
+        <item>关机</item>
+        <item>睡眠</item>
+        <item>重启</item>
+    </string-array>
+
+    <string-array name="tools">
+        <item>资源管理器</item>
+        <item>任务管理器</item>
+        <item>命令提示符</item>
+        <item>控制面板</item>
+        <item>记事本</item>
+        <item>计算器</item>
+        <item>媒体播放器</item>
+        <item>写字板</item>
+        <item>画图板</item>
+        <item>浏览器</item>
+    </string-array>
+
+    <string-array name="speech">
+        <item>普通模式</item>
+        <item>点按模式</item>
+    </string-array>
+
+</resources>

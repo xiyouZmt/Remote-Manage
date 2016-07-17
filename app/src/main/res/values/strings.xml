@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">Manager</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="fileManager"> "文件管理" </string>
+    <string name="music"> "音乐" </string>
+    <string name="image"> "图片" </string>
+    <string name="video"> "视频" </string>
+    <string name="word"> "文档" </string>
+    <string name="zip"> "压缩包" </string>
+    <string name="apk"> "安装包" </string>
+    <string name="glanceByContent"> "按文件目录浏览" </string>
+    <string name="storage_in"> "手机存储" </string>
+    <string name="storage_out"> "外部存储" </string>
+    <string name="no_files"> "暂无文件" </string>
+    <string name="copy"> "粘贴" </string>
+    <string name="cancel"> "取消" </string>
+    <string name="search"> "搜索" </string>
+    <string name="title_activity_tools">Tools</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="power"> 电源 </string>
+    <string name="volume"> 音量 </string>
+    <string name="brightness"> 亮度 </string>
+    <string name="mouse"> 鼠标 </string>
+    <string name="speech"> 语音识别 </string>
+    <string name="computer"> 电脑盘符 </string>
+    <string name="cmd"> 快捷工具 </string>
+    <string name="task"> 搜索 </string>
+    <string name="screen"> 截屏 </string>
+    <string name="connect"> 连接设备 </string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_mouse">MouseActivity</string>
+    <string name="title_activity_screen_shot">ScreenShot</string>
+    <string name="title_activity_driver_list">DriverList</string>
+
+</resources>
