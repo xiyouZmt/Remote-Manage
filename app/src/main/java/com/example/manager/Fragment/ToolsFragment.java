@@ -19,15 +19,14 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.manager.Activity.DriverList;
+import com.example.manager.Activity.DiskActivity;
 import com.example.manager.Activity.HomeActivity;
 import com.example.manager.Activity.MouseActivity;
 import com.example.manager.Application.App;
 import com.example.manager.R;
 import com.example.manager.ResideMenu.ResideMenu;
 import com.example.manager.SpeechRecognize.Speech;
-import com.example.manager.Thread.CommandThread;
-import com.iflytek.cloud.speech.SpeechUser;
+import com.example.manager.Thread.SendCommand;
 
 public class ToolsFragment extends Fragment {
 
@@ -114,8 +113,8 @@ public class ToolsFragment extends Fragment {
                                 public void onClick(DialogInterface dialog, int which) {
                                     Log.e("error", String.valueOf(app.getUser().connected));
                                     String data = "{'command':'power','type':'" + power + "'}";
-                                    CommandThread ct = new CommandThread(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
-                                    Thread t = new Thread(ct, "CommandThread");
+                                    SendCommand ct = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
+                                    Thread t = new Thread(ct, "SendCommand");
                                     t.start();
                                 }
                             }).create().show();
@@ -142,13 +141,16 @@ public class ToolsFragment extends Fragment {
                 case R.id.linear_speech :
                     Speech speech = new Speech(getActivity(), app);
                     speech.GetWordFromVoice();
+//                    VoiceToWord voiceToWord = new VoiceToWord(getActivity(), app.getUser().appId);
+//                    voiceToWord.GetWordFromVoice();
+
                     break;
                 case R.id.linear_computer :
-                    String data = "{'command':'driver'}";
-                    CommandThread driverThread = new CommandThread(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
-                    Thread driver = new Thread(driverThread, "CommandThread");
+                    String data = "{'command':'driver','operation':'getDisk'}";
+                    SendCommand driverThread = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
+                    Thread driver = new Thread(driverThread, "SendCommand");
                     driver.start();
-                    intent.setClass(getActivity(), DriverList.class);
+                    intent.setClass(getActivity(), DiskActivity.class);
                     startActivity(intent);
                     break;
                 case R.id.linear_tools :
@@ -200,8 +202,8 @@ public class ToolsFragment extends Fragment {
                                     break;
                             }
                             String data  = "{'command':'tools','type':'" + command + "'}";
-                            CommandThread cmd = new CommandThread(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
-                            Thread t_cmd = new Thread(cmd, "CommandThread");
+                            SendCommand cmd = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
+                            Thread t_cmd = new Thread(cmd, "SendCommand");
                             t_cmd.start();
                             pos = 0;
                         }
@@ -214,8 +216,8 @@ public class ToolsFragment extends Fragment {
                     break;
                 case R.id.linear_screen :
                     data  = "{'command':'screenShot'}";
-                    CommandThread screenThread = new CommandThread(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
-                    Thread screen = new Thread(screenThread, "CommandThread");
+                    SendCommand screenThread = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
+                    Thread screen = new Thread(screenThread, "SendCommand");
                     screen.start();
                     Toast.makeText(getActivity(), "截屏成功，已保存至E:/QuickSend", Toast.LENGTH_SHORT).show();
                     break;
@@ -232,8 +234,8 @@ public class ToolsFragment extends Fragment {
                 case R.id.submit :
                     if(!keyWords.getText().toString().equals("")) {
                         data = "{'command':'tools','type':'cmd /c start start www.baidu.com/s?wd=" + keyWords.getText().toString() + "'}";
-                        CommandThread cmd = new CommandThread(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
-                        Thread t_cmd = new Thread(cmd, "CommandThread");
+                        SendCommand cmd = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
+                        Thread t_cmd = new Thread(cmd, "SendCommand");
                         t_cmd.start();
                     }
                     break;
@@ -247,13 +249,13 @@ public class ToolsFragment extends Fragment {
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if(type.equals("volume")){
                 String data = "{'command':'volume','type':'" + seekBar.getProgress() + "'}";
-                CommandThread ct = new CommandThread(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
-                Thread t = new Thread(ct, "CommandThread");
+                SendCommand ct = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
+                Thread t = new Thread(ct, "SendCommand");
                 t.start();
             } else {
                 String data = "{'command':'brightness','type':'" + seekBar.getProgress() + "'}";
-                CommandThread ct = new CommandThread(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
-                Thread t = new Thread(ct, "CommandThread");
+                SendCommand ct = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
+                Thread t = new Thread(ct, "SendCommand");
                 t.start();
             }
         }

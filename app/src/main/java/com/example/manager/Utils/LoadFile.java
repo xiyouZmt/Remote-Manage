@@ -3,6 +3,7 @@ package com.example.manager.Utils;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageView;
@@ -11,25 +12,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.manager.Fragment.FileFragment;
-import com.example.manager.Class.ImageFolder;
-import com.example.manager.Class.MediaFiles;
+import com.example.manager.Model.ImageFolder;
+import com.example.manager.Model.MediaFiles;
 import com.example.manager.R;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
-import java.net.Socket;
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,11 +34,11 @@ public class LoadFile {
 
     private List<MediaFiles> musicList = new ArrayList<>();
     private List<MediaFiles> videoList = new ArrayList<>();
-    private List<String> parentPath = new ArrayList<>();
     private List<MediaFiles> imageList = new ArrayList<>();
-    private List<MediaFiles> wordList = new ArrayList<>();
-
+    private List<String> folderNames = new ArrayList<>();
     private List<ImageFolder> imageFolders = new ArrayList<>();
+
+    private List<MediaFiles> wordList = new ArrayList<>();
     private List<MediaFiles> zipList = new ArrayList<>();
     private List<MediaFiles> apkList = new ArrayList<>();
     private List<MediaFiles> filesList = new ArrayList<>();
@@ -60,7 +52,7 @@ public class LoadFile {
     }
 
     public Cursor loadMusic(ContentResolver contentResolver){
-        String musicSort = MediaStore.Audio.Media.TITLE;
+        String musicSort = MediaStore.Audio.Media.DISPLAY_NAME;
         Cursor musicCursor = contentResolver.query(FileFragment.musicUri, null, null, null, musicSort);
         if(musicCursor != null){
             while(musicCursor.moveToNext()){
@@ -81,10 +73,16 @@ public class LoadFile {
 
     public Cursor loadVideo(ContentResolver contentResolver){
         String videoSort = MediaStore.Video.Media.DISPLAY_NAME;
+//        Cursor videoCursor = contentResolver.query(
+//                Uri.parse("content://media/external/file"), null,
+//                MediaStore.Video.Media.MIME_TYPE + "=? or "
+//                        + MediaStore.Video.Media.MIME_TYPE + "=? or "
+//                        + MediaStore.Video.Media.MIME_TYPE + "=?",
+//                new String[]{"video/mp4", "video/rmvb", "video/mkv"}, videoSort);
         Cursor videoCursor = contentResolver.query(FileFragment.videoUri, null, null, null, videoSort);
         if(videoCursor != null){
             while(videoCursor.moveToNext()){
-                String title = videoCursor.getString(videoCursor.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME));
+                String title = videoCursor.getString(videoCursor.getColumnIndex(MediaStore.Video.Media.TITLE));
                 String size = videoCursor.getString(videoCursor.getColumnIndex(MediaStore.Video.Media.SIZE));
                 String path = videoCursor.getString(videoCursor.getColumnIndex(MediaStore.Video.Media.DATA));
                 MediaFiles video = new MediaFiles();
@@ -98,7 +96,7 @@ public class LoadFile {
     }
 
     public Cursor loadImage(ContentResolver contentResolver){
-        String imageSort = MediaStore.Images.Media.TITLE;
+        String imageSort = MediaStore.Images.Media.DATE_ADDED;
         Cursor imageCursor = contentResolver.query(FileFragment.imageUri, null, null, null, imageSort);
         if(imageCursor != null){
             while(imageCursor.moveToNext()){
@@ -109,29 +107,61 @@ public class LoadFile {
                     if (parentFile == null) {
                         continue;
                     }
-                    String folderPath = parentFile.getAbsolutePath();
-                    if (!parentPath.contains(folderPath)) {
-                        parentPath.add(folderPath);
+                    String folderName = parentFile.getName();
+                    if (!folderNames.contains(folderName)) {
+                        folderNames.add(folderName);
                         ImageFolder imageFolder = new ImageFolder();
-                        imageFolder.setFolderPath(folderPath);
-                        imageFolder.setFirstPath(file.getPath());
-                        imageFolder.setCount(getFileCount(folderPath));
+                        imageFolder.setFolderName(folderName);
+                        imageFolder.setFolderPath(parentFile.getPath());
+//                        imageFolder.setFirstImagePath(file.getPath());
+                        imageFolder.setCount(getImageCount(parentFile.getPath()));
                         imageFolders.add(imageFolder);
                     }
                 }
             }
-            parentPath = null;
         }
         return imageCursor;
+    }
+
+    public List<MediaFiles> loadWord(ContentResolver contentResolver){
+        Cursor wordCursor = contentResolver.query(
+                Uri.parse("content://media/external/file"), null,
+                MediaStore.Files.FileColumns.DATA + "=? or "
+                        + MediaStore.Files.FileColumns.DATA + " like ? or "
+                        + MediaStore.Files.FileColumns.DATA + " like ? or "
+                        + MediaStore.Files.FileColumns.DATA + " like ? or "
+                        + MediaStore.Files.FileColumns.DATA + " like ? or "
+                        + MediaStore.Files.FileColumns.DATA + " like ? or "
+                        + MediaStore.Files.FileColumns.DATA + " like ? or "
+                        + MediaStore.Files.FileColumns.DATA + " like ?",
+                new String[]{"%.doc", "%.docx", "%.ppt", "%.pptx", "%.pdf", "%.xlsx", "%.xls", "%.txt"},
+                MediaStore.Files.FileColumns.DATE_ADDED);
+        if(wordCursor != null){
+            while(wordCursor.moveToNext()){
+                String title = wordCursor.getString(wordCursor.getColumnIndex(MediaStore.Files.FileColumns.TITLE));
+                String size = wordCursor.getString(wordCursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE));
+                String path = wordCursor.getString(wordCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
+                File file = new File(path);
+                if(file.exists() && file.isFile()){
+                    MediaFiles word = new MediaFiles();
+                    word.setFileName(title);
+                    word.setFileSize(size);
+                    word.setFilePath(path);
+                    wordList.add(word);
+                }
+            }
+            wordCursor.close();
+        }
+        return wordList;
     }
 
     public List<MediaFiles> loadWord (String path, boolean isIterative){
         File [] files = new File(path).listFiles();
         for (File file : files) {
             if (file.isFile()){
-                if(file.getPath().endsWith(".txt") || file.getPath().endsWith(".pdf")
+                if(file.getPath().endsWith(".txt_rotate") || file.getPath().endsWith(".pdf_rotate")
                         || file.getPath().endsWith(".docx") || file.getPath().endsWith(".pptx")
-                        || file.getPath().endsWith(".xlsx")) {
+                        || file.getPath().endsWith(".xlsx_rotate")) {
                     MediaFiles mediaFiles = new MediaFiles();
                     mediaFiles.setFileName(file.getName());
                     mediaFiles.setFilePath(file.getPath());
@@ -152,6 +182,31 @@ public class LoadFile {
             }
         }
         return wordList;
+    }
+
+    public List<MediaFiles> loadZip(ContentResolver contentResolver){
+        Cursor zipCursor = contentResolver.query(
+                Uri.parse("content://media/external/file"), null,
+                MediaStore.Files.FileColumns.DATA + " like ? or "
+                        + MediaStore.Files.FileColumns.DATA + " like ?",
+                new String[]{"%.zip", "%.rar"}, MediaStore.Files.FileColumns.DATE_ADDED);
+        if(zipCursor != null){
+            while(zipCursor.moveToNext()){
+                String title = zipCursor.getString(zipCursor.getColumnIndex(MediaStore.Files.FileColumns.TITLE));
+                String size = zipCursor.getString(zipCursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE));
+                String path = zipCursor.getString(zipCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
+                File file = new File(path);
+                if(file.exists() && file.isFile()){
+                    MediaFiles zip = new MediaFiles();
+                    zip.setFileName(title);
+                    zip.setFileSize(size);
+                    zip.setFilePath(path);
+                    zipList.add(zip);
+                }
+            }
+            zipCursor.close();
+        }
+        return zipList;
     }
 
     public List<MediaFiles> loadZip (String path, boolean isIterative){
@@ -181,6 +236,31 @@ public class LoadFile {
         return zipList;
     }
 
+    public List<MediaFiles> loadApk(ContentResolver contentResolver){
+        List<MediaFiles> apkList = new ArrayList<>();
+        Cursor apkCursor = contentResolver.query(
+                Uri.parse("content://media/external/file"), null,
+                MediaStore.Files.FileColumns.DATA + " like ?",
+                new String[]{"%.apk"}, MediaStore.Files.FileColumns.DATE_ADDED);
+        if(apkCursor != null){
+            while(apkCursor.moveToNext()){
+                String title = apkCursor.getString(apkCursor.getColumnIndex(MediaStore.Files.FileColumns.TITLE));
+                String size = apkCursor.getString(apkCursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE));
+                String path = apkCursor.getString(apkCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
+                File file = new File(path);
+                if(file.exists() && file.isFile()){
+                    MediaFiles apk = new MediaFiles();
+                    apk.setFileName(title);
+                    apk.setFileSize(size);
+                    apk.setFilePath(path);
+                    apkList.add(apk);
+                }
+            }
+            apkCursor.close();
+        }
+        return apkList;
+    }
+
     public Map< String, List<MediaFiles> > loadSuffixFiles (String path, boolean isIterative){
         File [] files = new File(path).listFiles();
         if(files != null && files.length != 0){
@@ -197,8 +277,9 @@ public class LoadFile {
                         e.printStackTrace();
                     }
                     if ((file.getPath().endsWith(".txt") || file.getPath().endsWith(".pdf")
-                            || file.getPath().endsWith("docx") || file.getPath().endsWith(".pptx")
-                            || file.getPath().endsWith("xlsx"))) {
+                            || file.getPath().endsWith(".docx") || file.getPath().endsWith(".doc")
+                            || file.getPath().endsWith(".pptx") || file.getPath().endsWith(".ppt")
+                            || file.getPath().endsWith(".xlsx"))) {
                         wordList.add(mediaFiles);
                     } else if (file.getPath().endsWith(".zip") || file.getPath().endsWith(".rar")) {
                         zipList.add(mediaFiles);
@@ -309,10 +390,11 @@ public class LoadFile {
     public List<MediaFiles> getImage(String path){
         File [] files = new File(path).listFiles();
         for(File file : files){
-            if(file.isFile() && (file.getAbsolutePath().endsWith("jpg")
+            if(file.isFile() && file.exists()
+                    && (file.getAbsolutePath().endsWith("jpg")
                     || file.getAbsolutePath().endsWith(".png")
-                        || file.getAbsolutePath().endsWith("gif")
-                            || file.getAbsolutePath().endsWith("jpeg"))){
+                    || file.getAbsolutePath().endsWith("gif")
+                    || file.getAbsolutePath().endsWith("jpeg"))){
                 MediaFiles mediaFiles = new MediaFiles();
                 mediaFiles.setFileName(file.getName());
                 mediaFiles.setFilePath(file.getPath());
@@ -333,9 +415,26 @@ public class LoadFile {
     }
 
     /**
+     * 获取对应路径下第一张图片的路径
+     */
+    public String getFirstImagePath(String path){
+        File [] files = new File(path).listFiles();
+        for (File file : files) {
+            if(file.isFile() && file.exists()
+                    && (file.getAbsolutePath().endsWith("jpg")
+                    || file.getAbsolutePath().endsWith(".png")
+                    || file.getAbsolutePath().endsWith("gif")
+                    || file.getAbsolutePath().endsWith("jpeg"))) {
+                return file.getPath();
+            }
+        }
+        return null;
+    }
+
+    /**
      * 获取对应路径下图片的个数
      */
-    public int getFileCount(String path){
+    public int getImageCount(String path){
         int count = 0;
         File [] files = new File(path).listFiles();
         if(files == null){
@@ -356,13 +455,16 @@ public class LoadFile {
      * 复制文件
      */
     public int copyFiles(String sourcePath, String targetPath){
-
-        File file1 = new File(sourcePath);
-        if(file1.isFile() && file1.exists()){
+        File sourceFile = new File(sourcePath);
+        File targetFile = new File(targetPath + sourceFile.getName());
+        if(targetFile.exists()){
+            return 0;
+        }
+        if(sourceFile.isFile() && sourceFile.exists()){
             try {
                 File file = new File(targetPath);
                 InputStream fis = new FileInputStream(sourcePath);
-                OutputStream fos = new FileOutputStream(file.getParent() + '/' + file1.getName());
+                OutputStream fos = new FileOutputStream(file.getParent() + '/' + sourceFile.getName());
                 byte [] b = new byte[1024];
                 int c;
                 while((c = fis.read(b)) > 0){
@@ -376,13 +478,13 @@ public class LoadFile {
                 return -1;
             }
         } else {
-            File file2 = new File(targetPath + '/' + file1.getName());
+            File file2 = new File(targetPath + '/' + sourceFile.getName());
             if(!file2.exists()) {
                 file2.mkdirs();
             } else {
                 return 0;
             }
-            File [] files = file1.listFiles();
+            File [] files = sourceFile.listFiles();
             if(files.length == 0){
                 return 1;
             } else {
@@ -423,7 +525,7 @@ public class LoadFile {
      */
     public int moveFile(String oldPath, String newPath){
         File oldFile = new File(oldPath);
-        if(!oldFile.exists()){
+        if(!oldFile.exists() || oldPath.equals(newPath + oldFile.getName())){
             return 0;
         }
         File newFile = new File(newPath);
@@ -433,7 +535,7 @@ public class LoadFile {
         if(oldFile.isFile()){
             oldFile.renameTo(new File(newPath + File.separator + oldFile.getName()));
             return 1;
-        } else if(oldFile.isDirectory()){
+        } else {
             File [] sourceFile = oldFile.listFiles();
             for(File file : sourceFile){
                 if(file.isFile()){
@@ -445,7 +547,6 @@ public class LoadFile {
             }
             return 1;
         }
-        return 0;
     }
 
     public List<MediaFiles> getMusicList(){

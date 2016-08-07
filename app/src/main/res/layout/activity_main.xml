@@ -20,7 +20,7 @@
             <LinearLayout
                 android:layout_width="100dp"
                 android:layout_height="151dp"
-                android:layout_marginStart="11dp"
+                android:layout_marginLeft="11dp"
                 android:orientation="vertical"
                 android:id="@+id/linear_music"
                 android:background="@drawable/pressed">
@@ -55,7 +55,7 @@
             <LinearLayout
                 android:layout_width="100dp"
                 android:layout_height="151dp"
-                android:layout_marginStart="11dp"
+                android:layout_marginLeft="11dp"
                 android:layout_centerHorizontal="true"
                 android:orientation="vertical"
                 android:id="@+id/linear_video"
@@ -91,8 +91,8 @@
             <LinearLayout
                 android:layout_width="100dp"
                 android:layout_height="151dp"
-                android:layout_marginEnd="11dp"
-                android:layout_alignParentEnd="true"
+                android:layout_marginRight="11dp"
+                android:layout_alignParentRight="true"
                 android:orientation="vertical"
                 android:id="@+id/linear_image"
                 android:background="@drawable/pressed">
@@ -200,8 +200,8 @@
                 android:layout_width="100dp"
                 android:layout_height="151dp"
                 android:layout_below="@+id/linear_music"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="11dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="11dp"
                 android:orientation="vertical"
                 android:id="@+id/linear_apk"
                 android:background="@drawable/pressed">
@@ -244,33 +244,31 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/linear_word"
                 android:layout_marginTop="31dp"
-                android:layout_marginStart="20dp"
+                android:layout_marginLeft="20dp"
                 android:id="@+id/glanceByCount"
                 android:text="@string/glanceByContent"
                 android:textSize="14sp"
                 android:textColor="@color/color_6"/>
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="0.5dp"
-                android:layout_below="@+id/glanceByCount"
-                android:layout_marginTop="10dp"
-                android:layout_marginStart="20dp"
-                android:background="@color/color_c"/>
-
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_below="@+id/glanceByCount"
-                android:layout_marginTop="11dp"
+                android:layout_marginTop="10dp"
                 android:orientation="horizontal"
                 android:id="@+id/relative_storage_in"
                 android:background="@drawable/pressed">
 
                 <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_marginLeft="20dp"
+                    android:background="@color/color_c"/>
+
+                <ImageView
                     android:layout_width="40dp"
                     android:layout_height="35dp"
-                    android:layout_marginStart="20dp"
+                    android:layout_marginLeft="20dp"
                     android:layout_centerVertical="true"
                     android:id="@+id/storage_in"
                     android:background="@drawable/storage_in" />
@@ -279,8 +277,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignTop="@+id/storage_in"
-                    android:layout_toEndOf="@+id/storage_in"
-                    android:layout_marginStart="10dp"
+                    android:layout_toRightOf="@+id/storage_in"
+                    android:layout_marginLeft="10dp"
                     android:id="@+id/phoneStorage"
                     android:text="@string/storage_in"
                     android:textSize="14sp"
@@ -290,8 +288,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="40dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="40dp"
                     android:id="@+id/useful_storage" />
 
                 <ProgressBar
@@ -299,8 +297,8 @@
                     android:layout_height="10dp"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_alignBottom="@+id/storage_in"
-                    android:layout_alignStart="@+id/phoneStorage"
-                    android:layout_alignEnd="@+id/useful_storage"
+                    android:layout_alignLeft="@+id/phoneStorage"
+                    android:layout_alignRight="@+id/useful_storage"
                     android:id="@+id/progressBar"
                     android:progressBackgroundTint="@color/color_8"/>
 
@@ -308,33 +306,32 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerVertical="true"
-                    android:layout_toEndOf="@+id/progressBar"
-                    android:layout_marginStart="10dp"
+                    android:layout_toRightOf="@+id/progressBar"
+                    android:layout_marginLeft="10dp"
                     android:background="@drawable/right"/>
 
             </RelativeLayout>
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="0.5dp"
-                android:layout_below="@+id/relative_storage_in"
-                android:layout_marginStart="60dp"
-                android:id="@+id/line"
-                android:background="@color/color_c"/>
-
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_below="@+id/line"
+                android:layout_below="@+id/relative_storage_in"
                 android:orientation="horizontal"
                 android:id="@+id/relative_storage_out"
                 android:background="@drawable/pressed"
                 android:visibility="gone">
 
                 <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_marginLeft="60dp"
+                    android:id="@+id/line"
+                    android:background="@color/color_c" />
+
+                <ImageView
                     android:layout_width="40dp"
                     android:layout_height="35dp"
-                    android:layout_marginStart="20dp"
+                    android:layout_marginLeft="20dp"
                     android:layout_centerVertical="true"
                     android:id="@+id/storage_out"
                     android:background="@drawable/storage_out" />
@@ -343,8 +340,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignTop="@+id/storage_out"
-                    android:layout_toEndOf="@+id/storage_out"
-                    android:layout_marginStart="10dp"
+                    android:layout_toRightOf="@+id/storage_out"
+                    android:layout_marginLeft="10dp"
                     android:id="@+id/outStorage"
                     android:text="@string/storage_out"
                     android:textSize="14sp"
@@ -354,8 +351,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="40dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="40dp"
                     android:id="@+id/useful_storage_out" />
 
                 <ProgressBar
@@ -363,8 +360,8 @@
                     android:layout_height="10dp"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_alignBottom="@+id/storage_out"
-                    android:layout_alignStart="@+id/outStorage"
-                    android:layout_alignEnd="@+id/useful_storage_out"
+                    android:layout_alignLeft="@+id/outStorage"
+                    android:layout_alignRight="@+id/useful_storage_out"
                     android:id="@+id/progressBar_out"
                     android:progressBackgroundTint="@color/color_8"/>
 
@@ -372,8 +369,8 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerVertical="true"
-                    android:layout_toEndOf="@+id/progressBar_out"
-                    android:layout_marginStart="10dp"
+                    android:layout_toRightOf="@+id/progressBar_out"
+                    android:layout_marginLeft="10dp"
                     android:background="@drawable/right"/>
 
             </RelativeLayout>
@@ -381,7 +378,7 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
-                android:layout_marginStart="20dp"
+                android:layout_marginLeft="20dp"
                 android:layout_below="@+id/relative_storage_out"
                 android:background="@color/color_c"/>
 

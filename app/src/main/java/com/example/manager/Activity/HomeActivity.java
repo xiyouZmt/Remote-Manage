@@ -118,6 +118,10 @@ public class HomeActivity extends FragmentActivity{
                     Toast.makeText(HomeActivity.this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
                     exitTime = System.currentTimeMillis();
                 } else {
+                    if(FileFragment.thread.isAlive()
+                            || !FileFragment.thread.isInterrupted()){
+                        FileFragment.thread.interrupt();
+                    }
                     finish();
                 }
             }

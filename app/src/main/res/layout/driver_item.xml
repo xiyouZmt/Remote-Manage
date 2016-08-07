@@ -37,7 +37,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
+                    android:layout_marginLeft="10dp"
                     android:id="@+id/driverName"
                     android:text="本地磁盘(C)"
                     android:textSize="12sp"
@@ -46,12 +46,26 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
+                    android:layout_marginRight="10dp"
                     android:id="@+id/availableSize"
-                    android:layout_alignParentEnd="true"
+                    android:layout_toLeftOf="@+id/totalSize"
                     android:text="30GB可用"
                     android:textSize="12sp"
-                    android:textColor="@color/color_0"/>
+                    android:textColor="@color/color_6"
+                    android:textStyle="italic"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="10dp"
+                    android:ellipsize="marquee"
+                    android:singleLine="true"
+                    android:id="@+id/totalSize"
+                    android:text="共100GB"
+                    android:textSize="12sp"
+                    android:textColor="@color/color_6"
+                    android:textStyle="italic"/>
 
             </RelativeLayout>
 
@@ -78,16 +92,6 @@
             android:layout_height="match_parent"
             android:layout_weight="1.7"
             android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="marquee"
-                android:singleLine="true"
-                android:id="@+id/totalSize"
-                android:text="共100GB"
-                android:textSize="12sp"
-                android:textColor="@color/color_0"/>
 
         </RelativeLayout>
 

@@ -27,7 +27,7 @@
             android:layout_marginRight="40dp"
             android:id="@+id/count"
             android:background="@null"
-            android:hint="请输入局域网IP"
+            android:hint="请输入服务端IP"
             android:textSize="15sp"
             android:textStyle="italic"
             android:textColorHint="#aaaaaa"/>
@@ -78,5 +78,18 @@
         android:text="连接"
         android:textSize="18sp"
         android:textColor="#ffffff"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="49dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="15dp"
+        android:id="@+id/scan"
+        android:background="@drawable/connect_device"
+        android:text="扫码连接"
+        android:textSize="18sp"
+        android:textColor="#ffffff"/>
+
 
 </LinearLayout>

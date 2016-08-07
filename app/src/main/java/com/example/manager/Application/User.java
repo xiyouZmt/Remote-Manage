@@ -11,6 +11,6 @@ public class User {
     public String IP;
     public int port = 30000;
 
-    public String appid = "534e3fe2";
+    public String appId = "57332039";
 
 }

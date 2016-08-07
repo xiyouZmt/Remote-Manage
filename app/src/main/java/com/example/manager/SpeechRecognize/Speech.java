@@ -25,7 +25,7 @@ public class Speech {
     private RecognizerDialogListener recognizerDialogListener;
 
     public Speech(Context context, App app) {
-        SpeechUser.getUser().login(context, null, null, "appid=" + app.getUser().appid, new Listener());
+        SpeechUser.getUser().login(context, null, null, "appid=" + app.getUser().appId, new Listener());
         sharedPreferences = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
         dialog = new RecognizerDialog(context);
         Log.d("dialog", "successfully");

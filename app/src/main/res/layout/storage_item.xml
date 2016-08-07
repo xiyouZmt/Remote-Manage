@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_f">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/pressed"
+        android:descendantFocusability="blocksDescendants">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:id="@+id/file_image"
+            android:background="@drawable/directory"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/file_size"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="60dp"
+            android:textSize="16sp"
+            android:textColor="@color/color_272636"
+            android:id="@+id/file_name"
+            android:singleLine="true"
+            android:ellipsize="middle" />
+
+        <TextView
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/checkBox"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:id="@+id/file_size"
+            android:textSize="13sp"
+            android:textColor="@color/color_6"
+            android:singleLine="true"
+            android:ellipsize="end"/>
+
+        <com.example.manager.CheckBox.SmoothCheckBox
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="20dp"
+            android:id="@+id/checkBox" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

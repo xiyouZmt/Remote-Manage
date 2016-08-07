@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_e">
@@ -14,6 +15,19 @@
 
     </ListView>
 
+    <com.example.manager.Utils.ArcProgress
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_centerInParent="true"
+        android:id="@+id/progress"
+        android:background="@drawable/connect_device"
+        android:visibility="gone"
+        custom:arc_progress="0"
+        custom:arc_suffix_text_padding="5dp"
+        custom:arc_bottom_text="上传中..."
+        custom:arc_bottom_text_size="16sp"
+        custom:arc_text_color="@color/color_e" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -21,7 +35,7 @@
         android:orientation="vertical"
         android:id="@+id/edit"
         android:background="@color/color_f"
-        android:visibility="invisible">
+        android:visibility="gone">
 
         <ImageView
             android:layout_width="match_parent"
@@ -39,73 +53,113 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
+                android:orientation="vertical"
                 android:id="@+id/copy"
-                android:background="@drawable/edit">
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:background="@drawable/copy"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:id="@+id/move"
-                android:background="@drawable/edit">
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:background="@drawable/move"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:id="@+id/share"
-                android:background="@drawable/edit">
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="35dp"
-                    android:background="@drawable/share"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:id="@+id/delete"
-                android:background="@drawable/edit">
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:background="@drawable/delete"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:id="@+id/chooseAll"
-                android:background="@drawable/edit">
+                android:background="?android:attr/selectableItemBackground">
 
                 <ImageView
                     android:layout_width="25dp"
                     android:layout_height="25dp"
-                    android:background="@drawable/choose_all"/>
+                    android:background="@drawable/copy"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="复制"
+                    android:textSize="12sp"
+                    android:textColor="@color/color_272636"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:id="@+id/move"
+                android:background="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@drawable/move"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="移动"
+                    android:textSize="12sp"
+                    android:textColor="@color/color_272636"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:id="@+id/share"
+                android:background="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@mipmap/upload"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="上传"
+                    android:textSize="12sp"
+                    android:textColor="@color/color_272636"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:id="@+id/delete"
+                android:background="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@drawable/delete"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="删除"
+                    android:textSize="12sp"
+                    android:textColor="@color/color_272636"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:id="@+id/chooseAll"
+                android:background="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@mipmap/choose"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="全选"
+                    android:textSize="12sp"
+                    android:textColor="@color/color_272636"/>
 
             </LinearLayout>
 
@@ -122,6 +176,7 @@
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
             android:id="@+id/no_files_image">
 
         </RelativeLayout>
@@ -130,6 +185,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/no_files_image"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
             android:id="@+id/no_files_text">
 

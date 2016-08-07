@@ -1,17 +1,18 @@
 package com.example.manager.Adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.manager.Class.MediaFiles;
+import com.example.manager.CheckBox.SmoothCheckBox;
+import com.example.manager.Model.MediaFiles;
 import com.example.manager.R;
+import com.example.manager.Utils.LoadFile;
 import com.example.manager.Utils.StorageSize;
 
 import java.util.List;
@@ -21,14 +22,18 @@ import java.util.List;
  */
 public class FileAdapter extends BaseAdapter {
 
-    private LayoutInflater layoutInflater;
-    private List fileList;
-    private int resources;
+    private Context context;
+    private LoadFile loadFile;
+    private List<MediaFiles> fileList;
+    private List<MediaFiles> choseFiles;
+    private LinearLayout edit;
 
-    public FileAdapter(Context context, List fileList, int resources){
-        layoutInflater = LayoutInflater.from(context);
+    public FileAdapter(Context context, LoadFile loadFile, List<MediaFiles> fileList,  List<MediaFiles> choseFiles, LinearLayout edit){
+        this.context = context;
+        this.loadFile = loadFile;
         this.fileList = fileList;
-        this.resources = resources;
+        this.choseFiles = choseFiles;
+        this.edit = edit;
     }
 
     @Override
@@ -48,44 +53,99 @@ public class FileAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        RelativeLayout relative;
         ViewHolder viewHolder;
         if(convertView == null){
-            relative = (RelativeLayout)layoutInflater.inflate(R.layout.list_item,null);
+            convertView= LayoutInflater.from(context).inflate(R.layout.list_item, null);
             viewHolder = new ViewHolder();
-            viewHolder.fileName = (TextView)relative.findViewById(R.id.file_name);
-            viewHolder.fileSize = (TextView)relative.findViewById(R.id.file_size);
-            viewHolder.fileImage = (ImageView)relative.findViewById(R.id.file_image);
-            viewHolder.check = (ImageView) relative.findViewById(R.id.checkBox);
-            relative.setTag(viewHolder);
+            viewHolder.fileName = (TextView) convertView.findViewById(R.id.file_name);
+            viewHolder.fileSize = (TextView) convertView.findViewById(R.id.file_size);
+            viewHolder.fileImage = (ImageView) convertView.findViewById(R.id.file_image);
+            viewHolder.checkBox = (SmoothCheckBox) convertView.findViewById(R.id.checkBox);
+            convertView.setTag(viewHolder);
         } else {
-            relative = (RelativeLayout)convertView;
-            viewHolder =(ViewHolder)relative.getTag();
+            viewHolder = (ViewHolder)convertView.getTag();
         }
-        Log.i("position", String.valueOf(position));
-        MediaFiles file = (MediaFiles)fileList.get(position);
-        file.check = viewHolder.check;
+        final MediaFiles file = fileList.get(position);
+        file.checkBox = viewHolder.checkBox;
         if(file.count == 1) {
-            file.check.setBackgroundResource(R.drawable.side_checked);
+            file.checkBox.setChecked(true);
         } else {
-            file.check.setBackgroundResource(R.drawable.side);
+            file.checkBox.setChecked(false);
         }
-        viewHolder.fileImage.setBackgroundResource(resources);
+        String filePath = file.getFilePath();
+        switch (filePath.substring(filePath.lastIndexOf('.') + 1)){
+            case "mp3" :
+                viewHolder.fileImage.setBackgroundResource(R.drawable.music_normal);
+                break;
+            case "mp4":
+            case "rmvb" :
+            case "mkv" :
+                viewHolder.fileImage.setBackgroundResource(R.drawable.video_normal);
+                break;
+            case "txt" :
+                viewHolder.fileImage.setBackgroundResource(R.drawable.txt_normal);
+                break;
+            case "pdf" :
+                viewHolder.fileImage.setBackgroundResource(R.drawable.pdf_normal);
+                break;
+            case "doc" :
+            case "docx" :
+                viewHolder.fileImage.setBackgroundResource(R.drawable.doc_normal);
+                break;
+            case "xlsx" :
+                viewHolder.fileImage.setBackgroundResource(R.drawable.xlsx_normal);
+                break;
+            case "ppt" :
+            case "pptx" :
+                viewHolder.fileImage.setBackgroundResource(R.drawable.ppt_normal);
+                break;
+            case "zip" :
+            case "rar" :
+                viewHolder.fileImage.setBackgroundResource(R.drawable.zip_normal);
+                break;
+            default:
+                viewHolder.fileImage.setBackgroundResource(R.drawable.file);
+                break;
+        }
         if(file.getArtist() != null){
             viewHolder.fileName.setText(file.getArtist() + " - " + file.getFileName() + ".mp3");
         } else {
-            viewHolder.fileName.setText(file.getFileName());
+            viewHolder.fileName.setText(file.getFilePath().substring(file.getFilePath().lastIndexOf('/') + 1));
         }
         StorageSize storageSize = new StorageSize();
         viewHolder.fileSize.setText(storageSize.typeChange(Double.parseDouble(file.getFileSize())));
-        return relative;
+        file.checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (file.count == 0) {
+                    file.checkBox.setChecked(true, true);
+                    file.count = 1;
+                    choseFiles.add(file);
+                    edit.setVisibility(View.VISIBLE);
+                } else {
+                    file.checkBox.setChecked(false, true);
+                    file.count = 0;
+                    choseFiles.remove(file);
+                    int aChoose;
+                    for (aChoose = 0; aChoose < loadFile.getStorage().size(); aChoose++) {
+                        if (loadFile.getStorage().get(aChoose).count == 1) {
+                            break;
+                        }
+                    }
+                    if (aChoose == loadFile.getStorage().size()) {
+                        edit.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
+        return convertView;
     }
 
     class ViewHolder{
         ImageView fileImage;
         TextView fileName;
         TextView fileSize;
-        ImageView check;
+        SmoothCheckBox checkBox;
     }
 
 }

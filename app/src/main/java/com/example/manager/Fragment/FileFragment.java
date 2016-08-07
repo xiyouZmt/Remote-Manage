@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -13,24 +12,24 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.manager.Activity.HomeActivity;
-import com.example.manager.Activity.ImageFolderList;
-import com.example.manager.Activity.MusicList;
-import com.example.manager.Activity.Storage;
-import com.example.manager.Activity.VideoList;
-import com.example.manager.Activity.WordList;
-import com.example.manager.Class.MediaFiles;
+import com.example.manager.Activity.FolderActivity;
+import com.example.manager.Activity.MusicActivity;
+import com.example.manager.Activity.StorageActivity;
+import com.example.manager.Activity.VideoActivity;
+import com.example.manager.Activity.WordActivity;
+import com.example.manager.Model.MediaFiles;
 import com.example.manager.R;
 import com.example.manager.ResideMenu.ResideMenu;
-import com.example.manager.Utils.ActionBarUtil;
-import com.example.manager.Utils.LoadFile;
 import com.example.manager.Utils.StorageSize;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -58,29 +57,20 @@ public class FileFragment extends Fragment {
     private ProgressBar progressBarOut;
     private Intent intent;
     private SetCountHandler setCountHandler;
+    private ImageView line;
 
+    public  static Map<String, List<MediaFiles>> map;
     public  static final Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
     public  static final Uri videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
     public  static final Uri imageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-    public  static Map<String, List<MediaFiles>> map;
     public  static boolean getSuffixFile = false;
-
-    private Thread [] t = new Thread[2];
-
+    public  static Thread thread = new Thread();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.activity_main, null);
         initView();
         setListener();
-
-        Thread [] t = new Thread[2];
-        GetCountThread gt = new GetCountThread();
-        t[0] = new Thread(gt,"GetCountThread");
-        t[0].start();
-        SuffixFileThread st = new SuffixFileThread();
-        t[1] = new Thread(st, "SuffixFileThread");
-        t[1].start();
         StorageSize storageSize = new StorageSize();
         String storageIn = storageSize.getAvailableInternalMemorySize(getActivity());
         String totalSize = storageSize.getInternalMemorySize(getActivity());
@@ -103,6 +93,7 @@ public class FileFragment extends Fragment {
 
         if(storageSize.externalStorageAvailable() != null){
             relative_storage_out.setVisibility(View.VISIBLE);
+            line.setVisibility(View.VISIBLE);
             String storageOut = storageSize.getAvailableExternalMemorySize(getActivity());
             totalSize = storageSize.getExternalMemorySize(getActivity());
             useful_storage_out.setText(storageOut + "可用");
@@ -137,39 +128,39 @@ public class FileFragment extends Fragment {
                     HomeActivity.resideMenu.openMenu(ResideMenu.DIRECTION_LEFT);
                     break;
                 case R.id.linear_music :
-                    intent.setClass(getActivity(), MusicList.class);
+                    intent.setClass(getActivity(), MusicActivity.class);
                     startActivity(intent);
                     break;
                 case R.id.linear_video :
-                    intent.setClass(getActivity(), VideoList.class);
+                    intent.setClass(getActivity(), VideoActivity.class);
                     startActivity(intent);
                     break;
                 case R.id.linear_image :
-                    intent.setClass(getActivity(), ImageFolderList.class);
+                    intent.setClass(getActivity(), FolderActivity.class);
                     startActivity(intent);
                     break;
                 case R.id.linear_word :
-                    intent.setClass(getActivity(), WordList.class);
+                    intent.setClass(getActivity(), WordActivity.class);
                     intent.putExtra("style", getResources().getString(R.string.word));
                     startActivity(intent);
                     break;
                 case R.id.linear_zip :
-                    intent.setClass(getActivity(), WordList.class);
+                    intent.setClass(getActivity(), WordActivity.class);
                     intent.putExtra("style", getResources().getString(R.string.zip));
                     startActivity(intent);
                     break;
                 case R.id.linear_apk :
-                    intent.setClass(getActivity(), WordList.class);
+                    intent.setClass(getActivity(), WordActivity.class);
                     intent.putExtra("style", getResources().getString(R.string.apk));
                     startActivity(intent);
                     break;
                 case R.id.relative_storage_in :
-                    intent.setClass(getActivity(), Storage.class);
+                    intent.setClass(getActivity(), StorageActivity.class);
                     intent.putExtra("storage", "in");
                     startActivity(intent);
                     break;
                 case R.id.relative_storage_out :
-                    intent.setClass(getActivity(), Storage.class);
+                    intent.setClass(getActivity(), StorageActivity.class);
                     intent.putExtra("storage", "out");
                     startActivity(intent);
                     break;
@@ -181,35 +172,75 @@ public class FileFragment extends Fragment {
 
         @Override
         public void run() {
-            Cursor musicCursor = getActivity().getContentResolver().query(musicUri, null, null, null, null);
-            Cursor videoCursor = getActivity().getContentResolver().query(videoUri, null, null, null, null);
-            Cursor imageCursor = getActivity().getContentResolver().query(imageUri, null, null, null, null);
-
+            Cursor musicCursor = getActivity().getContentResolver().query(
+                    musicUri, null, null, null, null);
+            Cursor videoCursor = getActivity().getContentResolver().query(
+                    videoUri, null, null, null, null);
+            Cursor imageCursor = getActivity().getContentResolver().query(imageUri, null,
+                    MediaStore.Images.Media.MIME_TYPE + "=? or "
+                            + MediaStore.Images.Media.MIME_TYPE + "=? or "
+                            + MediaStore.Images.Media.MIME_TYPE + "=? or "
+                            + MediaStore.Images.Media.MIME_TYPE + "=?",
+                    new String[]{"image/png", "image/jpg", "image/jpeg", "image/gif"}, null);
+            Cursor wordCursor = getActivity().getContentResolver().query(
+                    Uri.parse("content://media/external/file"), null,
+                    MediaStore.Files.FileColumns.DATA + "=? or "
+                            + MediaStore.Files.FileColumns.DATA  + " like ? or "
+                            + MediaStore.Files.FileColumns.DATA  + " like ? or "
+                            + MediaStore.Files.FileColumns.DATA  + " like ? or "
+                            + MediaStore.Files.FileColumns.DATA  + " like ? or "
+                            + MediaStore.Files.FileColumns.DATA  + " like ? or "
+                            + MediaStore.Files.FileColumns.DATA  + " like ? or "
+                            + MediaStore.Files.FileColumns.DATA  + " like ?",
+                    new String[]{"%.doc", "%.docx", "%.ppt", "%.pptx", "%.pdf", "%.xlsx", "%.xls", "%.txt"}, null);
+            int badWord = 0;
+            while(wordCursor.moveToNext()){
+                String path = wordCursor.getString(wordCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
+                File file = new File(path);
+                if(!file.exists() || !file.isFile()){
+                    badWord ++;
+                }
+            }
+            Cursor zipCursor = getActivity().getContentResolver().query(
+                    Uri.parse("content://media/external/file"), null,
+                    MediaStore.Files.FileColumns.DATA + " like ? or "
+                            + MediaStore.Files.FileColumns.DATA  + " like ?",
+                    new String[]{"%.zip", "%.rar"}, null);
+            int badZip = 0;
+            while(zipCursor.moveToNext()){
+                String path = zipCursor.getString(zipCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
+                File file = new File(path);
+                if(!file.exists() || !file.isFile()){
+                    badZip ++;
+                }
+            }
+            Cursor apkCursor = getActivity().getContentResolver().query(
+                    Uri.parse("content://media/external/file"), null,
+                    MediaStore.Files.FileColumns.DATA + " like ?",
+                    new String[]{"%.apk"}, null);
             Bundle bundle = new Bundle();
+            int badApk = 0;
+            while(apkCursor.moveToNext()){
+                String path = apkCursor.getString(apkCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
+                File file = new File(path);
+                if(!file.exists() || !file.isFile()){
+                    badApk ++;
+                }
+            }
             bundle.putInt("musicCount",musicCursor.getCount());
             bundle.putInt("videoCount", videoCursor.getCount());
             bundle.putInt("imageCount", imageCursor.getCount());
+            bundle.putInt("wordCount", wordCursor.getCount() - badWord);
+            bundle.putInt("zipCount", zipCursor.getCount() - badZip);
+            bundle.putInt("apkCount", apkCursor.getCount() - badApk);
             musicCursor.close();
             videoCursor.close();
             imageCursor.close();
+            wordCursor.close();
+            zipCursor.close();
+            apkCursor.close();
             Message msg = new Message();
             msg.what = 0x000;
-            msg.setData(bundle);
-            setCountHandler.sendMessage(msg);
-        }
-    }
-    public class SuffixFileThread implements Runnable{
-
-        @Override
-        public void run() {
-            LoadFile loadFile = new LoadFile(getActivity());
-            map = loadFile.loadSuffixFiles(Environment.getExternalStorageDirectory() + "/", true);
-            Bundle bundle = new Bundle();
-            bundle.putInt("wordCount", map.get("wordList").size());
-            bundle.putInt("zipCount", map.get("zipList").size());
-            bundle.putInt("apkCount", map.get("apkList").size());
-            Message msg = new Message();
-            msg.what = 0x111;
             msg.setData(bundle);
             setCountHandler.sendMessage(msg);
         }
@@ -222,8 +253,6 @@ public class FileFragment extends Fragment {
                     music_count.setText(msg.getData().get("musicCount") + "项");
                     video_count.setText(msg.getData().get("videoCount") + "项");
                     image_count.setText(msg.getData().get("imageCount") + "项");
-                    break;
-                case 0x111 :
                     word_count.setText(msg.getData().get("wordCount") + "项");
                     zip_count.setText(msg.getData().get("zipCount") + "项");
                     apk_count.setText(msg.getData().get("apkCount") + "项");
@@ -233,24 +262,11 @@ public class FileFragment extends Fragment {
         }
     }
 
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         GetCountThread gt = new GetCountThread();
-        t[0] = new Thread(gt,"GetCountThread");
-        t[0].start();
-        SuffixFileThread st = new SuffixFileThread();
-        t[1] = new Thread(st, "SuffixFileThread");
-        t[1].start();
-    }
-
-    public void onStart(){
-        super.onStart();
-        GetCountThread gt = new GetCountThread();
-        t[0] = new Thread(gt,"GetCountThread");
-        t[0].start();
-        SuffixFileThread st = new SuffixFileThread();
-        t[1] = new Thread(st, "SuffixFileThread");
-        t[1].start();
+        thread = new Thread(gt, "GetCountThread");
+        thread.start();
     }
 
     public void setListener(){
@@ -293,6 +309,7 @@ public class FileFragment extends Fragment {
         relative_storage_in = (RelativeLayout) view.findViewById(R.id.relative_storage_in);
         relative_storage_out = (RelativeLayout) view.findViewById(R.id.relative_storage_out);
         useful_storage = (TextView) view.findViewById(R.id.useful_storage);
+        line = (ImageView) view.findViewById(R.id.line);
         useful_storage_out = (TextView) view.findViewById(R.id.useful_storage_out);
 
         intent = new Intent();

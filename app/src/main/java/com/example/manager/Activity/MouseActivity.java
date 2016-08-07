@@ -3,8 +3,6 @@ package com.example.manager.Activity;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.GestureDetector;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -15,7 +13,7 @@ import android.widget.Toast;
 
 import com.example.manager.Application.App;
 import com.example.manager.R;
-import com.example.manager.Thread.CommandThread;
+import com.example.manager.Thread.SendCommand;
 
 public class MouseActivity extends Activity {
 
@@ -152,10 +150,9 @@ public class MouseActivity extends Activity {
             int x = (int) distanceX;
             int y = (int) distanceY;
             String data = "{'command':'mouse','type':'move','width':'" + x + "','height':'" + y + "'}";
-            CommandThread ct = new CommandThread(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
-            Thread t = new Thread(ct,"CommandThread");
+            SendCommand ct = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
+            Thread t = new Thread(ct,"SendCommand");
             t.start();
-            Toast.makeText(MouseActivity.this, "onScroll", Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -185,15 +182,15 @@ public class MouseActivity extends Activity {
     }
 
     public void click(String data){
-        CommandThread ct = new CommandThread(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
-        Thread t = new Thread(ct, "CommandThread");
+        SendCommand ct = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
+        Thread t = new Thread(ct, "SendCommand");
         t.start();
         if(System.currentTimeMillis() - doubleClick > 100){
             doubleClick = System.currentTimeMillis();
         } else {
             data = "{'command':'mouse','type':'doubleClick'}";
-            ct = new CommandThread(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
-            t = new Thread(ct, "CommandThread");
+            ct = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
+            t = new Thread(ct, "SendCommand");
             t.start();
             doubleClick = 0;
         }
