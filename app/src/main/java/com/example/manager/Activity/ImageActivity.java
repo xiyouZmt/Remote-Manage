@@ -52,7 +52,7 @@ public class ImageActivity extends Activity {
     private int count = 0;
     private boolean hasChoseAll = false;
     public  static List<MediaFiles> choseFiles;
-    public static String TAG = "";
+    public  static List<String> newPath = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,14 +80,20 @@ public class ImageActivity extends Activity {
             if(hasChoseAll){
                 for (int i = 0; i < loadFile.getImageList().size(); i++) {
                     loadFile.getImageList().get(i).count = 0;
-                    loadFile.getImageList().get(i).setFilePath(TAG);
+                    if(newPath.size() != 0){
+                        loadFile.getImageList().get(i).setFilePath(newPath.get(i));
+                    }
                 }
             } else {
                 for (int i = 0; i < choseFiles.size(); i++) {
                     choseFiles.get(i).count = 0;
-                    choseFiles.get(i).setFilePath(TAG);
+                    if(newPath.size() != 0){
+                        choseFiles.get(i).setFilePath(newPath.get(i));
+                    }
                 }
             }
+            newPath.clear();
+            choseFiles.clear();
             imageAdapter.notifyDataSetChanged();
             edit.setVisibility(View.GONE);
         }
@@ -247,6 +253,21 @@ public class ImageActivity extends Activity {
                         t.start();
                     } else {
                         progressDialog.dismiss();
+                        count = 0;
+                        if(edit.getVisibility() == View.VISIBLE){
+                            if(hasChoseAll){
+                                for (int i = 0; i < loadFile.getMusicList().size(); i++) {
+                                    loadFile.getMusicList().get(i).count = 0;
+                                }
+                            } else {
+                                for (int i = 0; i < choseFiles.size(); i++) {
+                                    choseFiles.get(i).count = 0;
+                                }
+                            }
+                            choseFiles.clear();
+                            imageAdapter.notifyDataSetChanged();
+                            edit.setVisibility(View.GONE);
+                        }
                         Toast.makeText(ImageActivity.this, "传输完成!", Toast.LENGTH_SHORT).show();
                     }
                     break;

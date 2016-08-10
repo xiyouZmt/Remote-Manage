@@ -92,7 +92,7 @@ public class DiskActivity extends Activity {
              */
             String name = driverList.get(position).get("diskName");
             String path = name.substring(name.indexOf('(') + 1, name.indexOf(')')) + '/';
-            String data = "{'command':'driver','operation':'getFile','path':'" + path + "'}";
+            String data = "{\"command\":\"driver\",\"operation\":\"getFile\",\"path\":\"" + path + "\"}";
             SendCommand driverThread = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
             Thread driver = new Thread(driverThread, "SendCommand");
             driver.start();

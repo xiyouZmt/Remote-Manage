@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -27,9 +28,17 @@ import com.example.manager.Model.MediaFiles;
 import com.example.manager.R;
 import com.example.manager.Thread.SendFile;
 import com.example.manager.Utils.ActionBarUtil;
+import com.example.manager.Utils.ArcProgress;
+import com.example.manager.Utils.CircleProgress;
 import com.example.manager.Utils.LoadFile;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,14 +64,16 @@ public class MusicActivity extends Activity {
     private RelativeLayout no_files_image;
     private RelativeLayout no_files_text;
     private List<MediaFiles> searchList;
-    private boolean hasChoseAll = false;
-    private boolean isSearching = false;
+    private CircleProgress circleProgress;
     private FileAdapter musicAdapter;
     private MusicHandler musicHandler;
     private ProgressDialog progressDialog;
-    public  static List<MediaFiles> choseFiles;
     private int count = 0;
-    public static String TAG = "";
+    private String percentage;
+    private boolean hasChoseAll = false;
+    private boolean isSearching = false;
+    public  static List<MediaFiles> choseFiles;
+    public  static List<String> newPath = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,14 +99,20 @@ public class MusicActivity extends Activity {
             if(hasChoseAll){
                 for (int i = 0; i < loadFile.getMusicList().size(); i++) {
                     loadFile.getMusicList().get(i).count = 0;
-                    loadFile.getMusicList().get(i).setFilePath(TAG);
+                    if(newPath.size() != 0){
+                        loadFile.getMusicList().get(i).setFilePath(newPath.get(i));
+                    }
                 }
             } else {
                 for (int i = 0; i < choseFiles.size(); i++) {
                     choseFiles.get(i).count = 0;
-                    choseFiles.get(i).setFilePath(TAG);
+                    if(newPath.size() != 0){
+                        choseFiles.get(i).setFilePath(newPath.get(i));
+                    }
                 }
             }
+            newPath.clear();
+            choseFiles.clear();
             musicAdapter.notifyDataSetChanged();
             edit.setVisibility(View.GONE);
         }
@@ -136,8 +153,15 @@ public class MusicActivity extends Activity {
                     break;
                 case R.id.share :
                     if(app.getUser().connected) {
-                        progressDialog.show();
+//                        progressDialog.show();
+                        circleProgress.setVisibility(View.VISIBLE);
                         File file = new File(choseFiles.get(0).getFilePath());
+                        try {
+                            int max = new FileInputStream(file).available();
+                            circleProgress.setMax(max);
+                        } catch (IOException e) {
+                            Log.e("io error--->", e.toString());
+                        }
                         SendFile ft = new SendFile(app.getUser().socket, app.getUser().IP, app.getUser().port, file, musicHandler);
                         Thread t = new Thread(ft, "SendFile");
                         t.start();
@@ -284,24 +308,52 @@ public class MusicActivity extends Activity {
     }
 
     public class MusicHandler extends Handler{
+
         public void handleMessage(Message msg){
             switch (msg.what){
+                case 0x000 :
+                    percentage = String.valueOf(msg.arg1 * 100 / circleProgress.getMax());
+                    circleProgress.setProgress(circleProgress.getProgress() + Integer.parseInt(percentage));
+                    break;
                 case 0x001 :
                     count ++;
                     if(count < choseFiles.size()) {
                         File file = new File(choseFiles.get(count).getFilePath());
+                        try {
+                            circleProgress.setMax(new FileInputStream(file).available());
+                        } catch (IOException e) {
+                            Log.e("io error--->", e.toString());
+                        }
                         SendFile ft = new SendFile(app.getUser().socket, app.getUser().IP, app.getUser().port, file, musicHandler);
                         Thread t = new Thread(ft, "SendFile");
                         t.start();
                     } else {
                         progressDialog.dismiss();
+                        circleProgress.setVisibility(View.GONE);
+                        count = 0;
+                        if(edit.getVisibility() == View.VISIBLE){
+                            if(hasChoseAll){
+                                for (int i = 0; i < loadFile.getMusicList().size(); i++) {
+                                    loadFile.getMusicList().get(i).count = 0;
+                                }
+                            } else {
+                                for (int i = 0; i < choseFiles.size(); i++) {
+                                    choseFiles.get(i).count = 0;
+                                }
+                            }
+                            choseFiles.clear();
+                            musicAdapter.notifyDataSetChanged();
+                            edit.setVisibility(View.GONE);
+                        }
                         Toast.makeText(MusicActivity.this, "传输完成!", Toast.LENGTH_SHORT).show();
+                        circleProgress.setProgress(0);
                     }
                     break;
                 case 0x333 :
                     progressDialog.dismiss();
                     app.getUser().connected = false;
                     Toast.makeText(MusicActivity.this, "连接失败，请重新连接", Toast.LENGTH_SHORT).show();
+                    circleProgress.setProgress(0);
                     break;
 
             }
@@ -356,6 +408,7 @@ public class MusicActivity extends Activity {
         chooseAll = (LinearLayout) findViewById(R.id.chooseAll);
         no_files_image = (RelativeLayout) findViewById(R.id.no_files);
         no_files_text = (RelativeLayout) findViewById(R.id.no_files_text);
+        circleProgress = (CircleProgress) findViewById(R.id.progress);
         loadFile = new LoadFile(MusicActivity.this);
         choseFiles = new ArrayList<>();
         searchList = new ArrayList<>();

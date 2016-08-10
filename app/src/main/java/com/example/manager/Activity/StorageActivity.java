@@ -28,6 +28,7 @@ import com.example.manager.Utils.LoadFile;
 import com.example.manager.Utils.StorageSize;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -129,6 +130,7 @@ public class StorageActivity extends Activity {
                 }
             }
             TAG = "";
+            choseFiles.clear();
             storageAdapter.notifyDataSetChanged();
             edit.setVisibility(View.GONE);
         }
@@ -238,6 +240,11 @@ public class StorageActivity extends Activity {
                     case "mkv" :
                         intent.setDataAndType(uri, "video/*");
                         break;
+                    case "jpg" :
+                    case "jpeg" :
+                    case "png" :
+                    case "gif" :
+                        intent.setDataAndType(uri, "image/*");
                     case "txt" :
                     case "pdf" :
                     case "doc" :
@@ -307,6 +314,7 @@ public class StorageActivity extends Activity {
     }
 
     public class StorageHandler extends Handler{
+
         public void handleMessage(Message msg){
             switch (msg.what){
                 case 0x001 :
@@ -318,6 +326,21 @@ public class StorageActivity extends Activity {
                         t.start();
                     } else {
                         progressDialog.dismiss();
+                        count = 0;
+                        if(edit.getVisibility() == View.VISIBLE){
+                            if(hasChoseAll){
+                                for (int i = 0; i < loadFile.getMusicList().size(); i++) {
+                                    loadFile.getMusicList().get(i).count = 0;
+                                }
+                            } else {
+                                for (int i = 0; i < choseFiles.size(); i++) {
+                                    choseFiles.get(i).count = 0;
+                                }
+                            }
+                            choseFiles.clear();
+                            storageAdapter.notifyDataSetChanged();
+                            edit.setVisibility(View.GONE);
+                        }
                         Toast.makeText(StorageActivity.this, "传输完成!", Toast.LENGTH_SHORT).show();
                     }
                     break;

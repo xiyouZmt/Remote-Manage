@@ -55,7 +55,7 @@ public class WordActivity extends Activity {
     public  static List<MediaFiles> choseFiles;
     private boolean hasChoseAll = false;
     private int count = 0;
-    public static String TAG = "";
+    public  static List<String> newPath = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,14 +92,20 @@ public class WordActivity extends Activity {
             if(hasChoseAll){
                 for (int i = 0; i < wordList.size(); i++) {
                     wordList.get(i).count = 0;
-                    wordList.get(i).setFilePath(TAG);
+                    if(newPath.size() != 0){
+                        wordList.get(i).setFilePath(newPath.get(i));
+                    }
                 }
             } else {
                 for (int i = 0; i < choseFiles.size(); i++) {
                     choseFiles.get(i).count = 0;
-                    choseFiles.get(i).setFilePath(TAG);
+                    if(newPath.size() != 0){
+                        choseFiles.get(i).setFilePath(newPath.get(i));
+                    }
                 }
             }
+            newPath.clear();
+            choseFiles.clear();
             fileAdapter.notifyDataSetChanged();
             edit.setVisibility(View.GONE);
         }
@@ -174,6 +180,21 @@ public class WordActivity extends Activity {
                         t.start();
                     } else {
                         progressDialog.dismiss();
+                        count = 0;
+                        if(edit.getVisibility() == View.VISIBLE){
+                            if(hasChoseAll){
+                                for (int i = 0; i < loadFile.getMusicList().size(); i++) {
+                                    loadFile.getMusicList().get(i).count = 0;
+                                }
+                            } else {
+                                for (int i = 0; i < choseFiles.size(); i++) {
+                                    choseFiles.get(i).count = 0;
+                                }
+                            }
+                            choseFiles.clear();
+                            fileAdapter.notifyDataSetChanged();
+                            edit.setVisibility(View.GONE);
+                        }
                         Toast.makeText(WordActivity.this, "传输完成!", Toast.LENGTH_SHORT).show();
                     }
                     break;

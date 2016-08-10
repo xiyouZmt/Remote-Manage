@@ -13,12 +13,14 @@ import android.os.Message;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.manager.Adapter.FileAdapter;
+import com.example.manager.Adapter.VideoAdapter;
 import com.example.manager.Application.App;
 import com.example.manager.Model.MediaFiles;
 import com.example.manager.Thread.SendFile;
@@ -36,7 +38,7 @@ import java.util.List;
 public class VideoActivity extends Activity {
 
     private App app;
-    private ListView listView;
+    private GridView gridView;
     private LinearLayout back;
     private LinearLayout search;
     private LoadFile loadFile;
@@ -50,27 +52,25 @@ public class VideoActivity extends Activity {
     private RelativeLayout no_files_text;
     private VideoHandler videoHandler;
     private ProgressDialog progressdialog;
-    private FileAdapter videoAdapter;
+    private VideoAdapter videoAdapter;
     public  static List<MediaFiles> choseFiles;
     private boolean hasChoseAll = false;
     private int count = 0;
-    public static String TAG = "";
+    private final int ok = 2;
+    private final int error = 0;
+    public  static List<String> newPath = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActionBarUtil.initActionBar(getActionBar(), getResources().getString(R.string.video), 0x222);
-        setContentView(R.layout.filelist);
+        setContentView(R.layout.video_layout);
         initView();
         setListener();
-        Cursor cursor = loadFile.loadVideo(getContentResolver());
-        if(cursor != null && cursor.getCount() != 0) {
-            cursor.close();
-            videoAdapter = new FileAdapter(getApplicationContext(), loadFile, loadFile.getVideoList(), choseFiles, edit);
-            listView.setAdapter(videoAdapter);
-        } else {
-            loadFile.addView(no_files_image,no_files_text,R.drawable.no_video);
-        }
+        progressdialog.show();
+        VideoThread vt = new VideoThread();
+        Thread t = new Thread(vt, "VideoThread");
+        t.start();
     }
 
     @Override
@@ -80,16 +80,51 @@ public class VideoActivity extends Activity {
             if(hasChoseAll){
                 for (int i = 0; i < loadFile.getVideoList().size(); i++) {
                     loadFile.getVideoList().get(i).count = 0;
-                    loadFile.getVideoList().get(i).setFilePath(TAG);
+                    if(newPath.size() != 0){
+                        loadFile.getVideoList().get(i).setFilePath(newPath.get(i));
+                    }
                 }
             } else {
                 for (int i = 0; i < choseFiles.size(); i++) {
                     choseFiles.get(i).count = 0;
-                    choseFiles.get(i).setFilePath(TAG);
+                    if(newPath.size() != 0){
+                        choseFiles.get(i).setFilePath(newPath.get(i));
+                    }
                 }
             }
+            newPath.clear();
+            choseFiles.clear();
             videoAdapter.notifyDataSetChanged();
             edit.setVisibility(View.GONE);
+        }
+    }
+
+//    public Handler handler = new Handler(){
+//        public void handleMessage(Message msg){
+//            progressdialog.dismiss();
+//            switch (msg.what){
+//                case ok :
+//                    videoAdapter = new VideoAdapter(getApplicationContext(), loadFile.getVideoList(), choseFiles, edit);
+//                    gridView.setAdapter(videoAdapter);
+//                    break;
+//                case error :
+//                    loadFile.addView(no_files_image,no_files_text,R.drawable.no_video);
+//                    break;
+//            }
+//        }
+//    };
+
+    public class VideoThread implements Runnable{
+
+        @Override
+        public void run() {
+            Cursor cursor = loadFile.loadVideo(getContentResolver());
+            if(cursor != null && cursor.getCount() != 0) {
+                cursor.close();
+                videoHandler.sendEmptyMessage(ok);
+            } else {
+                videoHandler.sendEmptyMessage(error);
+            }
         }
     }
 
@@ -119,6 +154,7 @@ public class VideoActivity extends Activity {
                     break;
                 case R.id.share :
                     if(app.getUser().connected) {
+                        progressdialog.setMessage("上传中...");
                         progressdialog.show();
                         File file = new File(choseFiles.get(0).getFilePath());
                         SendFile ft = new SendFile(app.getUser().socket, app.getUser().IP, app.getUser().port, file, videoHandler);
@@ -243,6 +279,21 @@ public class VideoActivity extends Activity {
                         t.start();
                     } else {
                         progressdialog.dismiss();
+                        count = 0;
+                        if(edit.getVisibility() == View.VISIBLE){
+                            if(hasChoseAll){
+                                for (int i = 0; i < loadFile.getMusicList().size(); i++) {
+                                    loadFile.getMusicList().get(i).count = 0;
+                                }
+                            } else {
+                                for (int i = 0; i < choseFiles.size(); i++) {
+                                    choseFiles.get(i).count = 0;
+                                }
+                            }
+                            choseFiles.clear();
+                            videoAdapter.notifyDataSetChanged();
+                            edit.setVisibility(View.GONE);
+                        }
                         Toast.makeText(VideoActivity.this, "传输完成!", Toast.LENGTH_SHORT).show();
                     }
                     break;
@@ -250,6 +301,15 @@ public class VideoActivity extends Activity {
                     progressdialog.dismiss();
                     app.getUser().connected = false;
                     Toast.makeText(VideoActivity.this, "连接失败，请重新连接", Toast.LENGTH_SHORT).show();
+                    break;
+                case ok :
+                    progressdialog.dismiss();
+                    videoAdapter = new VideoAdapter(getApplicationContext(), loadFile.getVideoList(), choseFiles, edit);
+                    gridView.setAdapter(videoAdapter);
+                    break;
+                case error :
+                    progressdialog.dismiss();
+                    loadFile.addView(no_files_image, no_files_text, R.drawable.no_video);
                     break;
             }
         }
@@ -283,11 +343,11 @@ public class VideoActivity extends Activity {
         share.setOnClickListener(new VideoListener());
         delete.setOnClickListener(new VideoListener());
         chooseAll.setOnClickListener(new VideoListener());
-        listView.setOnItemClickListener(new VideoListListener());
+        gridView.setOnItemClickListener(new VideoListListener());
     }
 
     public void initView(){
-        listView = (ListView) findViewById(R.id.fileList);
+        gridView = (GridView) findViewById(R.id.gridView);
         back = (LinearLayout) findViewById(R.id.back);
         search = (LinearLayout) findViewById(R.id.search);
         edit = (LinearLayout) findViewById(R.id.edit);
@@ -302,8 +362,8 @@ public class VideoActivity extends Activity {
         choseFiles = new ArrayList<>();
         videoHandler = new VideoHandler();
         progressdialog = new ProgressDialog(this);
-        progressdialog.setMessage("传输中...");
-        progressdialog.setCanceledOnTouchOutside(false);
+        progressdialog.setMessage("加载中...");
+        progressdialog.setCancelable(false);
         app = (App) getApplication();
     }
 

@@ -44,7 +44,11 @@ public class OperateActivity extends Activity {
     private ProgressDialog progressDialog;
     private OperateHandler operateHandler;
     private OperateAdapter operateAdapter;
+    private int style = 0;
     private String newPath = "";
+    private String targetPath = "";
+    private MediaFiles file;
+    private int count = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +69,10 @@ public class OperateActivity extends Activity {
         Intent intent;
         if((intent = getIntent()) != null) {
             operation = intent.getStringExtra("operation");
-            switch (intent.getIntExtra("style", 0)) {
+            if(operation.equals("move")){
+                progressDialog.setMessage("正在移动...");
+            }
+            switch ((style = intent.getIntExtra("style", 0))) {
                 case R.string.music :
                     choseFiles = MusicActivity.choseFiles;
                     break;
@@ -108,37 +115,38 @@ public class OperateActivity extends Activity {
         public void onClick(View v) {
             switch (v.getId()){
                 case R.id.paste :
-                    MediaFiles file;
                     progressDialog.show();
-                    for (int i = 0; i < choseFiles.size(); i++) {
-                        file = choseFiles.get(i);
-                        Log.e("filePath--->", file.getFilePath());
-                        if (loadFile.getStorage().isEmpty()) {
-                            if(operation.equals("copy")) {
-                                CopyThread ct = new CopyThread(file.getFilePath(), new File(path).getParent() + '/');
-                                Thread t = new Thread(ct, "OperateThread");
-                                t.start();
-                            } else {
-                                newPath = new File(path).getParent() + '/' + file.getFileName();
-                                MoveThread mt = new MoveThread(file.getFilePath(), new File(path).getParent() + '/');
-                                Thread t = new Thread(mt, "MoveThread");
-                                t.start();
-                            }
+                    file = choseFiles.get(count);
+                    Log.e("filePath--->", file.getFilePath());
+                    int index = file.getFilePath().lastIndexOf('/');
+                    if (loadFile.getStorage().isEmpty()) {
+                        targetPath = new File(path).getParent() + '/';
+                        if(operation.equals("copy")) {
+                            CopyThread ct = new CopyThread(file.getFilePath(), targetPath);
+                            Thread t = new Thread(ct, "OperateThread");
+                            t.start();
                         } else {
-                            File file1 = new File(loadFile.getStorage().get(0).getFilePath());
-                            if (file1.getParent().equals("/storage/emulated/0/0")) {
-                                Toast.makeText(OperateActivity.this, "操作失败, 没有权限", Toast.LENGTH_SHORT).show();
-                            }
-                            if(operation.equals("copy")) {
-                                CopyThread ct = new CopyThread(file.getFilePath(), file1.getParent() + '/');
-                                Thread t = new Thread(ct, "OperateThread");
-                                t.start();
-                            } else {
-                                newPath = file1.getParent() + '/' + file.getFileName();
-                                MoveThread mt = new MoveThread(file.getFilePath(), file1.getParent() + '/');
-                                Thread t = new Thread(mt, "MoveThread");
-                                t.start();
-                            }
+
+                            newPath = new File(path).getParent() + '/' + file.getFilePath().substring(index + 1);
+                            MoveThread mt = new MoveThread(file.getFilePath(), targetPath);
+                            Thread t = new Thread(mt, "MoveThread");
+                            t.start();
+                        }
+                    } else {
+                        File file1 = new File(loadFile.getStorage().get(0).getFilePath());
+                        targetPath = file1.getParent() + '/';
+                        if (file1.getParent().equals("/storage/emulated/0/0")) {
+                            Toast.makeText(OperateActivity.this, "操作失败, 没有权限", Toast.LENGTH_SHORT).show();
+                        }
+                        if(operation.equals("copy")) {
+                            CopyThread ct = new CopyThread(file.getFilePath(), targetPath);
+                            Thread t = new Thread(ct, "OperateThread");
+                            t.start();
+                        } else {
+                            newPath = file1.getParent() + '/' + file.getFilePath().substring(index + 1);
+                            MoveThread mt = new MoveThread(file.getFilePath(), targetPath);
+                            Thread t = new Thread(mt, "MoveThread");
+                            t.start();
                         }
                     }
                     break;
@@ -154,7 +162,7 @@ public class OperateActivity extends Activity {
 
         private String sourcesPath;
         private String targetPath;
-        private int result ;
+        private int result;
         private Message msg;
 
         public CopyThread(String sourcesPath, String targetPath){
@@ -181,8 +189,8 @@ public class OperateActivity extends Activity {
 
         private String sourcesPath;
         private String targetPath;
-        private int result ;
         private Message msg;
+        private boolean move;
 
         public MoveThread(String sourcesPath, String targetPath){
             this.sourcesPath = sourcesPath;
@@ -192,16 +200,17 @@ public class OperateActivity extends Activity {
 
         @Override
         public void run() {
-            result = loadFile.moveFile(sourcesPath, targetPath);
-            if(result == 0){
-                msg.obj = "move failed";
-            } else if(result == 1){
+            move = loadFile.moveFile(sourcesPath, targetPath);
+            if(move){
                 msg.obj = "move succeed";
-                Bundle bundle = new Bundle();
-                bundle.putString("newPath", newPath);
-                msg.setData(bundle);
+                if(style != R.string.storage_in){
+                    MusicActivity.newPath.add(newPath);
+                    VideoActivity.newPath.add(newPath);
+                    ImageActivity.newPath.add(newPath);
+                    WordActivity.newPath.add(newPath);
+                }
             } else {
-                msg.obj = "no permission";
+                msg.obj = "move failed";
             }
             operateHandler.sendMessage(msg);
         }
@@ -209,33 +218,49 @@ public class OperateActivity extends Activity {
 
     public class OperateHandler extends Handler{
         public void handleMessage(Message msg){
-            progressDialog.dismiss();
-            switch (msg.obj.toString()){
-                case "move failed" :
-                    Toast.makeText(OperateActivity.this, "移动失败，文件已存在！", Toast.LENGTH_SHORT).show();
-                    break;
-                case "move succeed" :
-                    StorageActivity.TAG = msg.obj.toString();
-                    Object object;
-                    if((object = msg.getData().get("newPath")) != null){
-                        WordActivity.TAG = object.toString();
-                        ImageActivity.TAG = object.toString();
-                        VideoActivity.TAG  = object.toString();
-                        MusicActivity.TAG = object.toString();
-                    }
-                    Toast.makeText(OperateActivity.this, "移动完成!", Toast.LENGTH_SHORT).show();
-                    break;
-                case "copy failed" :
-                    Toast.makeText(OperateActivity.this, "复制失败，文件已存在！", Toast.LENGTH_SHORT).show();
-                    break;
-                case "copy succeed" :
-                    Toast.makeText(OperateActivity.this, "复制完成!", Toast.LENGTH_SHORT).show();
-                    break;
-                case "no permission" :
-                    Toast.makeText(OperateActivity.this, "操作失败，没有权限!", Toast.LENGTH_SHORT).show();
-                    break;
+//            switch (msg.obj.toString()){
+//                case "move failed" :
+//                    Toast.makeText(OperateActivity.this, file.getFileName() + "已存在！", Toast.LENGTH_SHORT).show();
+//                    break;
+//                case "copy failed" :
+//                    Toast.makeText(OperateActivity.this, file.getFileName() + "已存在！", Toast.LENGTH_SHORT).show();
+//                    break;
+//            }
+            count ++;
+            if(count < choseFiles.size()){
+                file = choseFiles.get(count);
+                if(operation.equals("copy")){
+                    CopyThread ct = new CopyThread(file.getFilePath(), targetPath);
+                    Thread t = new Thread(ct, "OperateThread");
+                    t.start();
+                } else if(operation.equals("move")){
+                    MoveThread mt = new MoveThread(file.getFilePath(), targetPath);
+                    Thread t = new Thread(mt, "MoveThread");
+                    t.start();
+                }
+            } else {
+                progressDialog.dismiss();
+                switch (msg.obj.toString()){
+                    case "move failed" :
+                        Toast.makeText(OperateActivity.this, file.getFileName() + "已存在!", Toast.LENGTH_SHORT).show();
+                        break;
+                    case "move succeed" :
+                        StorageActivity.TAG = msg.obj.toString();
+                        Toast.makeText(OperateActivity.this, "移动完成!", Toast.LENGTH_SHORT).show();
+                        break;
+                    case "copy failed" :
+                        Toast.makeText(OperateActivity.this, file.getFileName() + "已存在!", Toast.LENGTH_SHORT).show();
+                        break;
+                    case "copy succeed" :
+                        Toast.makeText(OperateActivity.this, "复制完成!", Toast.LENGTH_SHORT).show();
+                        break;
+                    case "no permission" :
+                        Toast.makeText(OperateActivity.this, "操作失败，没有权限!", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+                count = 0;
+                finish();
             }
-            finish();
         }
     }
 
@@ -286,7 +311,7 @@ public class OperateActivity extends Activity {
         choseFiles = new ArrayList<>();
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("正在复制...");
-        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setCancelable(false);
         operateHandler = new OperateHandler();
     }
 

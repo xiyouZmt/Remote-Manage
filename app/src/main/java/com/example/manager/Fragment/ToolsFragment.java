@@ -146,7 +146,7 @@ public class ToolsFragment extends Fragment {
 
                     break;
                 case R.id.linear_computer :
-                    String data = "{'command':'driver','operation':'getDisk'}";
+                    String data = "{\"command\":\"driver\",\"operation\":\"getDisk\"}";
                     SendCommand driverThread = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
                     Thread driver = new Thread(driverThread, "SendCommand");
                     driver.start();
@@ -201,7 +201,7 @@ public class ToolsFragment extends Fragment {
                                     command = "cmd /c start start www.baidu.com";
                                     break;
                             }
-                            String data  = "{'command':'tools','type':'" + command + "'}";
+                            String data  = "{\"command\":\"tools\",\"type\":\"" + command + "\"}";
                             SendCommand cmd = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
                             Thread t_cmd = new Thread(cmd, "SendCommand");
                             t_cmd.start();
@@ -215,7 +215,7 @@ public class ToolsFragment extends Fragment {
                     popupWindow.showAtLocation(searchWindow, Gravity.CENTER, 0, 0);
                     break;
                 case R.id.linear_screen :
-                    data  = "{'command':'screenShot'}";
+                    data  = "{\"command\":\"screenShot\"}";
                     SendCommand screenThread = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
                     Thread screen = new Thread(screenThread, "SendCommand");
                     screen.start();
@@ -233,7 +233,7 @@ public class ToolsFragment extends Fragment {
                     break;
                 case R.id.submit :
                     if(!keyWords.getText().toString().equals("")) {
-                        data = "{'command':'tools','type':'cmd /c start start www.baidu.com/s?wd=" + keyWords.getText().toString() + "'}";
+                        data = "{\"command\":\"tools\",\"type\":\"cmd /c start start www.baidu.com/s?wd=" + keyWords.getText().toString() + "\"}";
                         SendCommand cmd = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
                         Thread t_cmd = new Thread(cmd, "SendCommand");
                         t_cmd.start();
@@ -248,12 +248,12 @@ public class ToolsFragment extends Fragment {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if(type.equals("volume")){
-                String data = "{'command':'volume','type':'" + seekBar.getProgress() + "'}";
+                String data = "{\"command\":\"volume\",\"type\":\"" + seekBar.getProgress() + "\"}";
                 SendCommand ct = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
                 Thread t = new Thread(ct, "SendCommand");
                 t.start();
             } else {
-                String data = "{'command':'brightness','type':'" + seekBar.getProgress() + "'}";
+                String data = "{\"command\":\"brightness\",\"type\":\"" + seekBar.getProgress() + "\"}";
                 SendCommand ct = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
                 Thread t = new Thread(ct, "SendCommand");
                 t.start();

@@ -127,12 +127,12 @@ public class FileAdapter extends BaseAdapter {
                     file.count = 0;
                     choseFiles.remove(file);
                     int aChoose;
-                    for (aChoose = 0; aChoose < loadFile.getStorage().size(); aChoose++) {
-                        if (loadFile.getStorage().get(aChoose).count == 1) {
+                    for (aChoose = 0; aChoose < fileList.size(); aChoose++) {
+                        if (fileList.get(aChoose).count == 1) {
                             break;
                         }
                     }
-                    if (aChoose == loadFile.getStorage().size()) {
+                    if (aChoose == fileList.size()) {
                         edit.setVisibility(View.GONE);
                     }
                 }

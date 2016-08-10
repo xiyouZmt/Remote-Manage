@@ -3,6 +3,9 @@ package com.example.manager.Utils;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -85,14 +88,35 @@ public class LoadFile {
                 String title = videoCursor.getString(videoCursor.getColumnIndex(MediaStore.Video.Media.TITLE));
                 String size = videoCursor.getString(videoCursor.getColumnIndex(MediaStore.Video.Media.SIZE));
                 String path = videoCursor.getString(videoCursor.getColumnIndex(MediaStore.Video.Media.DATA));
+                String thumb = videoCursor.getString(videoCursor.getColumnIndexOrThrow(MediaStore.Video.Thumbnails.DATA));
+                MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+                try{
+                    retriever.setDataSource(thumb);
+                }catch(IllegalArgumentException e){
+                    Log.e("IllegalArgument--->", e.toString());
+                }
+                Bitmap bitmap = retriever.getFrameAtTime();
+                retriever.release();
+//                Bitmap bitmap = getVideoThumbnail(path, 180, 160,
+//                        MediaStore.Images.Thumbnails.MICRO_KIND);
                 MediaFiles video = new MediaFiles();
                 video.setFileName(title);
                 video.setFileSize(size);
                 video.setFilePath(path);
+                video.setFileThumb(bitmap);
                 videoList.add(video);
             }
         }
         return videoCursor;
+    }
+
+    private Bitmap getVideoThumbnail(String videoPath, int width, int height, int kind) {
+        Bitmap bitmap = null;
+        // 获取视频的缩略图
+        bitmap = ThumbnailUtils.createVideoThumbnail(videoPath, kind);
+        bitmap = ThumbnailUtils.extractThumbnail(bitmap, width, height,
+                ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+        return bitmap;
     }
 
     public Cursor loadImage(ContentResolver contentResolver){
@@ -462,9 +486,8 @@ public class LoadFile {
         }
         if(sourceFile.isFile() && sourceFile.exists()){
             try {
-                File file = new File(targetPath);
-                InputStream fis = new FileInputStream(sourcePath);
-                OutputStream fos = new FileOutputStream(file.getParent() + '/' + sourceFile.getName());
+                InputStream fis = new FileInputStream(sourceFile);
+                OutputStream fos = new FileOutputStream(targetFile);
                 byte [] b = new byte[1024];
                 int c;
                 while((c = fis.read(b)) > 0){
@@ -478,9 +501,9 @@ public class LoadFile {
                 return -1;
             }
         } else {
-            File file2 = new File(targetPath + '/' + sourceFile.getName());
-            if(!file2.exists()) {
-                file2.mkdirs();
+            targetFile = new File(targetPath + sourceFile.getName());
+            if(!targetFile.exists()) {
+                targetFile.mkdirs();
             } else {
                 return 0;
             }
@@ -489,7 +512,7 @@ public class LoadFile {
                 return 1;
             } else {
                 for (File file : files) {
-                    copyFiles(file.getAbsolutePath(), file2.getPath());
+                    copyFiles(file.getAbsolutePath(), targetFile.getPath());
                 }
                 return 1;
             }
@@ -523,30 +546,33 @@ public class LoadFile {
     /**
      * 移动文件
      */
-    public int moveFile(String oldPath, String newPath){
+    public boolean moveFile(String oldPath, String newPath){
+        boolean move;
         File oldFile = new File(oldPath);
-        if(!oldFile.exists() || oldPath.equals(newPath + oldFile.getName())){
-            return 0;
-        }
-        File newFile = new File(newPath);
-        if(!newFile.exists()){
-            newFile.mkdirs();
-        }
-        if(oldFile.isFile()){
-            oldFile.renameTo(new File(newPath + File.separator + oldFile.getName()));
-            return 1;
+        File newFile = new File(newPath + oldFile.getName());
+        if(!oldFile.exists() || newFile.exists()
+                || oldPath.equals(newPath + oldFile.getName()) ){
+            move = false;
+        } else if(oldFile.isFile()){
+            move = oldFile.renameTo(new File(newPath + File.separator + oldFile.getName()));
         } else {
-            File [] sourceFile = oldFile.listFiles();
-            for(File file : sourceFile){
-                if(file.isFile()){
-                    oldFile.renameTo(new File(newPath + File.separator + file.getName()));
+            if(!newFile.exists()){
+                newFile.mkdirs();
+                File [] sourceFile = oldFile.listFiles();
+                for(File file : sourceFile){
+                    if(file.isFile()){
+                        oldFile.renameTo(new File(newFile.getPath() + '/' + File.separator + file.getName()));
+                    }
+                    if(file.isDirectory()){
+                        moveFile(file.getAbsolutePath(), newFile.getAbsolutePath() + File.separator + file.getName());
+                    }
                 }
-                if(file.isDirectory()){
-                    moveFile(file.getAbsolutePath(), newFile.getAbsolutePath() + File.separator + file.getName());
-                }
+                move = true;
+            } else {
+                move = false;
             }
-            return 1;
         }
+        return move;
     }
 
     public List<MediaFiles> getMusicList(){

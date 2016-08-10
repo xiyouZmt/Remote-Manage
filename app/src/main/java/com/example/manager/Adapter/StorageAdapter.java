@@ -22,13 +22,13 @@ import java.util.List;
  */
 public class StorageAdapter extends BaseAdapter {
 
-    public Context context;
-    public List list;
+    private Context context;
+    private List<MediaFiles> list;
     private LoadFile loadFile;
     private List<MediaFiles> choseFiles;
     private LinearLayout edit;
 
-    public StorageAdapter(Context context, List list, LoadFile loadFile, List<MediaFiles> choseFiles, LinearLayout edit) {
+    public StorageAdapter(Context context, List<MediaFiles> list, LoadFile loadFile, List<MediaFiles> choseFiles, LinearLayout edit) {
         this.context = context;
         this.list = list;
         this.loadFile = loadFile;
@@ -65,7 +65,7 @@ public class StorageAdapter extends BaseAdapter {
         } else {
             viewHolder =(ViewHolder)convertView.getTag();
         }
-        final MediaFiles file = (MediaFiles)list.get(position);
+        final MediaFiles file = list.get(position);
         file.checkBox = viewHolder.checkBox;
         if(file.count == 1) {
             file.checkBox.setChecked(true);

@@ -66,13 +66,13 @@ public class DiskAdapter extends BaseAdapter {
         /**
          * 总空间大小
          */
-        String allSize = total.substring(0, total.lastIndexOf('G'));
+        String allSize = total.substring(0, total.lastIndexOf('B') - 1);
         String allSizeToInteger = String.valueOf(Double.parseDouble(allSize) * 100);
         int allSizeForInteger = Integer.parseInt(allSizeToInteger.substring(0, allSizeToInteger.lastIndexOf('.')));
         /**
-         * 可用空间大小
+         * 已用空间大小
          */
-        String hasUsedSize = available.substring(0, available.lastIndexOf('G'));
+        String hasUsedSize = available.substring(0, available.lastIndexOf('B') - 1);
         String hasUsedSizeToInteger = String.valueOf(Double.parseDouble(hasUsedSize) * 100);
         int hasUsedSizeForInteger = Integer.parseInt(hasUsedSizeToInteger.substring(0, hasUsedSizeToInteger.lastIndexOf('.')));
 

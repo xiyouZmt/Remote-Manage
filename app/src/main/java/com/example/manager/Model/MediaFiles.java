@@ -1,5 +1,7 @@
 package com.example.manager.Model;
 
+import android.graphics.Bitmap;
+
 import com.example.manager.CheckBox.SmoothCheckBox;
 
 import java.io.File;
@@ -9,13 +11,22 @@ import java.io.File;
  */
 public class MediaFiles{
 
-    public String fileSize;
-    public String fileName;
-    public String artist;
-    public String filePath;
-    public SmoothCheckBox checkBox;
-    public int count = 0;
-    public boolean isFile = false;
+    private String artist;
+    private String fileSize;
+    private String fileName;
+    private String filePath;
+    private Bitmap fileThumb;
+    public  SmoothCheckBox checkBox;
+    public  int count = 0;
+    public  boolean isFile = false;
+
+    public Bitmap getFileThumb() {
+        return fileThumb;
+    }
+
+    public void setFileThumb(Bitmap fileThumb) {
+        this.fileThumb = fileThumb;
+    }
 
     public void setFileSize(String fileSize){
         this.fileSize = fileSize;

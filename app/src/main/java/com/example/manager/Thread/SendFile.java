@@ -1,6 +1,7 @@
 package com.example.manager.Thread;
 
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import java.io.BufferedWriter;
@@ -38,7 +39,7 @@ public class SendFile implements Runnable {
             if(file.isFile()) {
                 socket = new Socket(IP, port);
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                String data  = "{'file':'file','fileName':'" + file.getName() + "'}";
+                String data  = "{\"file\":\"file\",\"fileName\":\"" + file.getName() + "\"}";
                 writer.write(data);
                 writer.close();
                 socket.close();
@@ -64,10 +65,14 @@ public class SendFile implements Runnable {
                  * 字节流发送文件
                  */
                 InputStream is = new FileInputStream(file.getPath());
-                byte [] c = new byte[1024 * 10];
+                byte [] c = new byte[1024 * 100];
                 int b;
                 while ((b = is.read(c)) > 0){
                     os.write(c, 0, b);
+                    Message msg = new Message();
+                    msg.what = 0x000;
+                    msg.arg1 = b;
+                    handler.sendMessage(msg);
                 }
                 is.close();
                 os.close();

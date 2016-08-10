@@ -5,38 +5,31 @@
     android:layout_height="match_parent"
     android:background="@color/color_e">
 
-    <ListView
+    <GridView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/fileList"
-        android:dividerHeight="0.5dp"
-        android:divider="@color/color_c"
+        android:horizontalSpacing="3dp"
+        android:verticalSpacing="3dp"
+        android:layout_margin="3dp"
+        android:numColumns="2"
+        android:stretchMode="columnWidth"
+        android:id="@+id/gridView"
         android:background="@color/color_f">
 
-    </ListView>
+    </GridView>
 
-    <!--<com.example.manager.Utils.ArcProgress-->
-        <!--android:layout_width="150dp"-->
-        <!--android:layout_height="150dp"-->
-        <!--android:layout_centerInParent="true"-->
-        <!--android:id="@+id/progress"-->
-        <!--android:background="@drawable/connect_device"-->
-        <!--android:visibility="gone"-->
-        <!--custom:arc_suffix_text_padding="5dp"-->
-        <!--custom:arc_bottom_text="上传中..."-->
-        <!--custom:arc_bottom_text_size="16sp"-->
-        <!--custom:arc_text_color="@color/color_e" />-->
-
-    <com.example.manager.Utils.CircleProgress
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+    <com.example.manager.Utils.ArcProgress
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:layout_centerInParent="true"
         android:id="@+id/progress"
+        android:background="@drawable/connect_device"
         android:visibility="gone"
-        custom:circle_progress="0"
-        custom:circle_finished_color="@color/blue"
-        custom:circle_unfinished_color="@color/color_c"
-        custom:circle_text_size="16sp"/>
+        custom:arc_progress="0"
+        custom:arc_suffix_text_padding="5dp"
+        custom:arc_bottom_text="上传中..."
+        custom:arc_bottom_text_size="16sp"
+        custom:arc_text_color="@color/color_e" />
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -11,12 +11,12 @@
         android:descendantFocusability="blocksDescendants">
 
         <ImageView
-            android:layout_width="25.65dp"
-            android:layout_height="27dp"
+            android:layout_width="30dp"
+            android:layout_height="25dp"
             android:layout_centerVertical="true"
             android:layout_marginLeft="20dp"
             android:id="@+id/file_image"
-            android:background="@drawable/music_normal"/>
+            android:background="@drawable/directory"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -24,9 +24,8 @@
             android:layout_toLeftOf="@+id/file_size"
             android:layout_centerVertical="true"
             android:layout_marginLeft="60dp"
-            android:layout_marginRight="10dp"
-            android:textSize="18sp"
-            android:textColor="@color/color_0"
+            android:textSize="16sp"
+            android:textColor="@color/color_272636"
             android:id="@+id/file_name"
             android:singleLine="true"
             android:ellipsize="middle" />

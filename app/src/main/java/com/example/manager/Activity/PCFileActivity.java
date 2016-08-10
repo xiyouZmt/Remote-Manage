@@ -137,7 +137,7 @@ public class PCFileActivity extends Activity {
                 progressDialog.show();
                 String name = fileList.get(position).get("fileName") + '/';
                 path += name;
-                String data = "{'command':'driver','operation':'getFile','path':'" + path + "'}";
+                String data = "{\"command\":\"driver\",\"operation\":\"getFile\",\"path\":\"" + path + "\"}";
                 SendCommand driverThread = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
                 Thread driver = new Thread(driverThread, "SendCommand");
                 driver.start();
@@ -185,16 +185,17 @@ public class PCFileActivity extends Activity {
                 return;
             }
 //            String path = fileList.get(pos).get("filePath");
-            path += fileList.get(pos).get("fileName");
+            StringBuilder filePath = new StringBuilder(path);
+            filePath.append(fileList.get(pos).get("fileName"));
             String data = "";
             switch (v.getId()){
                 case R.id.execute :
-                    data = "{'command':'driver','operation':'execute','path':'" + path + "'}";
+                    data = "{\"command\":\"driver\",\"operation\":\"execute\",\"path\":\"" + filePath + "\"}";
                     break;
                 case R.id.download :
                     progressDialog.setMessage("正在下载...");
                     progressDialog.show();
-                    data = "{'command':'driver','operation':'download','path':'" + path + "'}";
+                    data = "{\"command\":\"driver\",\"operation\":\"download\",\"path\":\"" + filePath + "\"}";
                     break;
             }
             /**
@@ -255,25 +256,28 @@ public class PCFileActivity extends Activity {
             /**
              * 发送上一级路径，获取所有文件
              */
-            if(path.indexOf('/') == path.lastIndexOf('/')){
+            if(operate.getVisibility() == View.VISIBLE){
+                operate.setVisibility(View.GONE);
+            } else if(path.indexOf('/') == path.lastIndexOf('/')){
                 finish();
                 return true;
-            }
-            content.setVisibility(View.INVISIBLE);
-            String str = path.substring(0, path.lastIndexOf('/'));
-            String path = str.substring(0, str.lastIndexOf('/') + 1);
-            this.path = path;
-            String data = "{'command':'driver','operation':'getFile','path':'" + path + "'}";
-            SendCommand driverThread = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
-            Thread driver = new Thread(driverThread, "SendCommand");
-            driver.start();
-            /**
-             * 开启接收数据线程
-             */
-            handler.post(new DelayThread());
+            } else {
+                content.setVisibility(View.GONE);
+                String str = path.substring(0, path.lastIndexOf('/'));
+                String path = str.substring(0, str.lastIndexOf('/') + 1);
+                this.path = path;
+                String data = "{\"command\":\"driver\",\"operation\":\"getFile\",\"path\":\"" + path + "\"}";
+                SendCommand driverThread = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
+                Thread driver = new Thread(driverThread, "SendCommand");
+                driver.start();
+                /**
+                 * 开启接收数据线程
+                 */
+                handler.post(new DelayThread());
 //            AcceptCommand acceptThread = new AcceptCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, handler);
 //            Thread accept = new Thread(acceptThread, "AcceptCommand");
 //            accept.start();
+            }
         }
         return true;
     }

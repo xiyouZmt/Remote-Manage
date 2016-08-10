@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/color_f">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:id="@+id/linear_folder"
+        android:background="@drawable/pictures_no">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:id="@+id/videoThumb" />
+
+        <com.example.manager.CheckBox.SmoothCheckBox
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="3dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="3dp"
+            android:id="@+id/checkBox"
+            android:button="@null" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="#af212121"
+            android:layout_alignParentBottom="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="150dp"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="2dp"
+                android:ellipsize="marquee"
+                android:id="@+id/videoName"
+                android:text="android"
+                android:textSize="14sp"
+                android:textColor="@color/color_e"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:gravity="center_vertical"
+                android:layout_marginRight="2dp"
+                android:text="10"
+                android:id="@+id/videoSize"
+                android:textSize="14sp"
+                android:textColor="@color/color_e"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>

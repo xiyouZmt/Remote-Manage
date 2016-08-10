@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -172,77 +173,81 @@ public class FileFragment extends Fragment {
 
         @Override
         public void run() {
-            Cursor musicCursor = getActivity().getContentResolver().query(
-                    musicUri, null, null, null, null);
-            Cursor videoCursor = getActivity().getContentResolver().query(
-                    videoUri, null, null, null, null);
-            Cursor imageCursor = getActivity().getContentResolver().query(imageUri, null,
-                    MediaStore.Images.Media.MIME_TYPE + "=? or "
-                            + MediaStore.Images.Media.MIME_TYPE + "=? or "
-                            + MediaStore.Images.Media.MIME_TYPE + "=? or "
-                            + MediaStore.Images.Media.MIME_TYPE + "=?",
-                    new String[]{"image/png", "image/jpg", "image/jpeg", "image/gif"}, null);
-            Cursor wordCursor = getActivity().getContentResolver().query(
-                    Uri.parse("content://media/external/file"), null,
-                    MediaStore.Files.FileColumns.DATA + "=? or "
-                            + MediaStore.Files.FileColumns.DATA  + " like ? or "
-                            + MediaStore.Files.FileColumns.DATA  + " like ? or "
-                            + MediaStore.Files.FileColumns.DATA  + " like ? or "
-                            + MediaStore.Files.FileColumns.DATA  + " like ? or "
-                            + MediaStore.Files.FileColumns.DATA  + " like ? or "
-                            + MediaStore.Files.FileColumns.DATA  + " like ? or "
-                            + MediaStore.Files.FileColumns.DATA  + " like ?",
-                    new String[]{"%.doc", "%.docx", "%.ppt", "%.pptx", "%.pdf", "%.xlsx", "%.xls", "%.txt"}, null);
-            int badWord = 0;
-            while(wordCursor.moveToNext()){
-                String path = wordCursor.getString(wordCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
-                File file = new File(path);
-                if(!file.exists() || !file.isFile()){
-                    badWord ++;
+
+            FragmentActivity activity;
+            if((activity = getActivity()) != null){
+                Cursor musicCursor = activity.getContentResolver().query(
+                        musicUri, null, null, null, null);
+                Cursor videoCursor = activity.getContentResolver().query(
+                        videoUri, null, null, null, null);
+                Cursor imageCursor = activity.getContentResolver().query(imageUri, null,
+                        MediaStore.Images.Media.MIME_TYPE + "=? or "
+                                + MediaStore.Images.Media.MIME_TYPE + "=? or "
+                                + MediaStore.Images.Media.MIME_TYPE + "=? or "
+                                + MediaStore.Images.Media.MIME_TYPE + "=?",
+                        new String[]{"image/png", "image/jpg", "image/jpeg", "image/gif"}, null);
+                Cursor wordCursor = activity.getContentResolver().query(
+                        Uri.parse("content://media/external/file"), null,
+                        MediaStore.Files.FileColumns.DATA + "=? or "
+                                + MediaStore.Files.FileColumns.DATA  + " like ? or "
+                                + MediaStore.Files.FileColumns.DATA  + " like ? or "
+                                + MediaStore.Files.FileColumns.DATA  + " like ? or "
+                                + MediaStore.Files.FileColumns.DATA  + " like ? or "
+                                + MediaStore.Files.FileColumns.DATA  + " like ? or "
+                                + MediaStore.Files.FileColumns.DATA  + " like ? or "
+                                + MediaStore.Files.FileColumns.DATA  + " like ?",
+                        new String[]{"%.doc", "%.docx", "%.ppt", "%.pptx", "%.pdf", "%.xlsx", "%.xls", "%.txt"}, null);
+                int badWord = 0;
+                while(wordCursor.moveToNext()){
+                    String path = wordCursor.getString(wordCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
+                    File file = new File(path);
+                    if(!file.exists() || !file.isFile()){
+                        badWord ++;
+                    }
                 }
-            }
-            Cursor zipCursor = getActivity().getContentResolver().query(
-                    Uri.parse("content://media/external/file"), null,
-                    MediaStore.Files.FileColumns.DATA + " like ? or "
-                            + MediaStore.Files.FileColumns.DATA  + " like ?",
-                    new String[]{"%.zip", "%.rar"}, null);
-            int badZip = 0;
-            while(zipCursor.moveToNext()){
-                String path = zipCursor.getString(zipCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
-                File file = new File(path);
-                if(!file.exists() || !file.isFile()){
-                    badZip ++;
+                Cursor zipCursor = activity.getContentResolver().query(
+                        Uri.parse("content://media/external/file"), null,
+                        MediaStore.Files.FileColumns.DATA + " like ? or "
+                                + MediaStore.Files.FileColumns.DATA  + " like ?",
+                        new String[]{"%.zip", "%.rar"}, null);
+                int badZip = 0;
+                while(zipCursor.moveToNext()){
+                    String path = zipCursor.getString(zipCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
+                    File file = new File(path);
+                    if(!file.exists() || !file.isFile()){
+                        badZip ++;
+                    }
                 }
-            }
-            Cursor apkCursor = getActivity().getContentResolver().query(
-                    Uri.parse("content://media/external/file"), null,
-                    MediaStore.Files.FileColumns.DATA + " like ?",
-                    new String[]{"%.apk"}, null);
-            Bundle bundle = new Bundle();
-            int badApk = 0;
-            while(apkCursor.moveToNext()){
-                String path = apkCursor.getString(apkCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
-                File file = new File(path);
-                if(!file.exists() || !file.isFile()){
-                    badApk ++;
+                Cursor apkCursor = activity.getContentResolver().query(
+                        Uri.parse("content://media/external/file"), null,
+                        MediaStore.Files.FileColumns.DATA + " like ?",
+                        new String[]{"%.apk"}, null);
+                int badApk = 0;
+                while(apkCursor.moveToNext()){
+                    String path = apkCursor.getString(apkCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
+                    File file = new File(path);
+                    if(!file.exists() || !file.isFile()){
+                        badApk ++;
+                    }
                 }
+                Bundle bundle = new Bundle();
+                bundle.putInt("musicCount",musicCursor.getCount());
+                bundle.putInt("videoCount", videoCursor.getCount());
+                bundle.putInt("imageCount", imageCursor.getCount());
+                bundle.putInt("wordCount", wordCursor.getCount() - badWord);
+                bundle.putInt("zipCount", zipCursor.getCount() - badZip);
+                bundle.putInt("apkCount", apkCursor.getCount() - badApk);
+                musicCursor.close();
+                videoCursor.close();
+                imageCursor.close();
+                wordCursor.close();
+                zipCursor.close();
+                apkCursor.close();
+                Message msg = new Message();
+                msg.what = 0x000;
+                msg.setData(bundle);
+                setCountHandler.sendMessage(msg);
             }
-            bundle.putInt("musicCount",musicCursor.getCount());
-            bundle.putInt("videoCount", videoCursor.getCount());
-            bundle.putInt("imageCount", imageCursor.getCount());
-            bundle.putInt("wordCount", wordCursor.getCount() - badWord);
-            bundle.putInt("zipCount", zipCursor.getCount() - badZip);
-            bundle.putInt("apkCount", apkCursor.getCount() - badApk);
-            musicCursor.close();
-            videoCursor.close();
-            imageCursor.close();
-            wordCursor.close();
-            zipCursor.close();
-            apkCursor.close();
-            Message msg = new Message();
-            msg.what = 0x000;
-            msg.setData(bundle);
-            setCountHandler.sendMessage(msg);
         }
     }
 
