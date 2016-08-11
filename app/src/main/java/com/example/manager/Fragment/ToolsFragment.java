@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,9 +33,7 @@ public class ToolsFragment extends Fragment {
 
     private App app;
     private View view;
-    private View searchWindow;
     private View volume_brightness;
-    private PopupWindow popupWindow;
     private EditText keyWords;
     private LinearLayout menu;
     private LinearLayout linear_power;
@@ -124,15 +123,15 @@ public class ToolsFragment extends Fragment {
                     break;
                 case R.id.linear_volume :
                     type = "volume";
-                    popupWindow = new PopupWindow(volume_brightness, dpToPx(300), dpToPx(50), true);
+                    PopupWindow popupWindow = new PopupWindow(volume_brightness, dpToPx(300), dpToPx(50), true);
                     popupWindow.setBackgroundDrawable(new ColorDrawable()); //也可为0x00000000，完全透明
-                    popupWindow.showAtLocation(volume_brightness, Gravity.CENTER,0,0);
+                    popupWindow.showAtLocation(volume_brightness, Gravity.CENTER, 0, 0);
                     break;
                 case R.id.linear_brightness :
                     type = "brightness";
                     popupWindow = new PopupWindow(volume_brightness, dpToPx(300), dpToPx(50), true);
                     popupWindow.setBackgroundDrawable(new ColorDrawable()); //也可为0x00000000，完全透明
-                    popupWindow.showAtLocation(volume_brightness, Gravity.CENTER,0,0);
+                    popupWindow.showAtLocation(volume_brightness, Gravity.CENTER, 0, 0);
                     break;
                 case R.id.linear_mouse :
                     intent.setClass(getActivity(), MouseActivity.class);
@@ -210,9 +209,17 @@ public class ToolsFragment extends Fragment {
                     }).create().show();
                     break;
                 case R.id.linear_search :
-                    popupWindow = new PopupWindow(searchWindow, dpToPx(300), dpToPx(110), true);
-                    popupWindow.setBackgroundDrawable(new ColorDrawable()); //也可为0x00000000，完全透明
-                    popupWindow.showAtLocation(searchWindow, Gravity.CENTER, 0, 0);
+//                    popupWindow = new PopupWindow(searchWindow, dpToPx(300), dpToPx(110), true);
+//                    popupWindow.setBackgroundDrawable(new ColorDrawable()); //也可为0x00000000，完全透明
+//                    popupWindow.showAtLocation(searchWindow, Gravity.CENTER, 0, 0);
+//                    View searchView = LayoutInflater.from(getContext()).inflate(R.layout.search_window, null);
+                    View searchWindow = getActivity().getLayoutInflater().inflate(R.layout.search_window, null);
+                    Button submit = (Button) searchWindow.findViewById(R.id.submit);
+                    keyWords = (EditText) searchWindow.findViewById(R.id.keyWords);
+                    submit.setOnClickListener(new ToolsListener());
+                    AlertDialog.Builder searchView = new AlertDialog.Builder(getContext());
+                    searchView.setView(searchWindow);
+                    searchView.create().show();
                     break;
                 case R.id.linear_screen :
                     data  = "{\"command\":\"screenShot\"}";
@@ -227,9 +234,6 @@ public class ToolsFragment extends Fragment {
                     } else {
                         HomeActivity.viewPager.setCurrentItem(2);
                     }
-                    break;
-                case R.id.cancel :
-                    popupWindow.dismiss();
                     break;
                 case R.id.submit :
                     if(!keyWords.getText().toString().equals("")) {
@@ -309,15 +313,9 @@ public class ToolsFragment extends Fragment {
         linear_search = (LinearLayout) view.findViewById(R.id.linear_search);
         linear_screen = (LinearLayout) view.findViewById(R.id.linear_screen);
         connect = (Button) view.findViewById(R.id.connect);
-        searchWindow = getActivity().getLayoutInflater().inflate(R.layout.search_window, null);
         volume_brightness = getActivity().getLayoutInflater().inflate(R.layout.volume_brightness, null);
         SeekBar seekBar = (SeekBar) volume_brightness.findViewById(R.id.seekBar);
         seekBar.setOnSeekBarChangeListener(new SeekBarListener());
-        Button cancel = (Button) searchWindow.findViewById(R.id.cancel);
-        Button submit = (Button) searchWindow.findViewById(R.id.submit);
-        keyWords = (EditText) searchWindow.findViewById(R.id.keyWords);
-        cancel.setOnClickListener(new ToolsListener());
-        submit.setOnClickListener(new ToolsListener());
     }
 
 }

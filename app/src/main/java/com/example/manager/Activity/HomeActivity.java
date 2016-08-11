@@ -44,7 +44,7 @@ public class HomeActivity extends FragmentActivity{
         resideMenu.attachToActivity(this);
         resideMenu.setBackground(R.drawable.user_background);
         resideMenu.setSwipeDirectionDisable(ResideMenu.DIRECTION_RIGHT);
-        String [] title = {"文件管理", "实用工具", "连接设备"};
+        String [] title = {"文件管理", "远程助手", "连接设备"};
         int [] image = {R.drawable.files, R.drawable.tools, R.drawable.connect};
         ResideMenuItem[] resideMenuItem = new ResideMenuItem[title.length];
         for(int i = 0; i < title.length; i++){

@@ -40,7 +40,7 @@ public class MouseActivity extends Activity {
         setListener();
     }
 
-    public class MouseListener implements View.OnClickListener{
+    public class MouseListener implements View.OnClickListener , View.OnLongClickListener{
 
         @Override
         public void onClick(View v) {
@@ -82,6 +82,38 @@ public class MouseActivity extends Activity {
                     click(data);
                     break;
             }
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            String data;
+            switch (v.getId()){
+                case R.id.up :
+                    data = "{'command':'mouse','type':'up'}";
+                    click(data);
+                    break;
+                case R.id.left :
+                    data = "{'command':'mouse','type':'left'}";
+                    click(data);
+                    break;
+                case R.id.down :
+                    data = "{'command':'mouse','type':'down'}";
+                    click(data);
+                    break;
+                case R.id.right :
+                    data = "{'command':'mouse','type':'right'}";
+                    click(data);
+                    break;
+                case R.id.home :
+                    data = "{'command':'mouse','type':'home'}";
+                    click(data);
+                    break;
+                case R.id.end :
+                    data = "{'command':'mouse','type':'end'}";
+                    click(data);
+                    break;
+            }
+            return true;
         }
     }
 
@@ -203,10 +235,16 @@ public class MouseActivity extends Activity {
         left.setOnClickListener(new MouseListener());
         down.setOnClickListener(new MouseListener());
         right.setOnClickListener(new MouseListener());
+        up.setOnLongClickListener(new MouseListener());
+        left.setOnLongClickListener(new MouseListener());
+        down.setOnLongClickListener(new MouseListener());
+        right.setOnLongClickListener(new MouseListener());
         leftClick.setOnClickListener(new MouseListener());
         rightClick.setOnClickListener(new MouseListener());
         home.setOnClickListener(new MouseListener());
         end.setOnClickListener(new MouseListener());
+        home.setOnLongClickListener(new MouseListener());
+        end.setOnLongClickListener(new MouseListener());
     }
 
     public void initViews(){

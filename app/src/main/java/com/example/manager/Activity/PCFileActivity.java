@@ -81,11 +81,14 @@ public class PCFileActivity extends Activity {
                         fileList.clear();
                         Log.e("data--->", data);
                         JSONObject jsonObject = new JSONObject(data);
+                        PCFileAdapter adapter;
                         if(jsonObject.get("file").toString().equals("null")){
                             progressDialog.dismiss();
-                            PCFileAdapter adapter = new PCFileAdapter(PCFileActivity.this, fileList);
-                            listView.setAdapter(adapter);
-                            content.setVisibility(View.VISIBLE);
+                            if(fileList.size() == 0){
+                                adapter = new PCFileAdapter(PCFileActivity.this, fileList);
+                                listView.setAdapter(adapter);
+                                content.setVisibility(View.VISIBLE);
+                            }
                         } else {
                             JSONArray jsonArray = jsonObject.getJSONArray("file");
                             for (int i = 0; i < jsonArray.length(); i++) {
@@ -97,7 +100,7 @@ public class PCFileActivity extends Activity {
                                 map.put("fileLength", object.get("fileLength").toString());
                                 fileList.add(map);
                                 progressDialog.dismiss();
-                                PCFileAdapter adapter = new PCFileAdapter(PCFileActivity.this, fileList);
+                                adapter = new PCFileAdapter(PCFileActivity.this, fileList);
                                 listView.setAdapter(adapter);
                             }
                         }

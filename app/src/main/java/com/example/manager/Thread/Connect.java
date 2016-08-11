@@ -5,8 +5,11 @@ import android.util.Log;
 import com.example.manager.Fragment.ConnectFragment;
 
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by Dangelo on 2016/5/20.
@@ -30,7 +33,7 @@ public class Connect implements Runnable {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             writer.close();
             socket.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             Log.e("Socket Error", e.toString());
             ConnectFragment.connectHandler.sendEmptyMessage(0x111);
         }

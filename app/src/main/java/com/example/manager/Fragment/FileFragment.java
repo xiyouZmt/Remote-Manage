@@ -173,7 +173,6 @@ public class FileFragment extends Fragment {
 
         @Override
         public void run() {
-
             FragmentActivity activity;
             if((activity = getActivity()) != null){
                 Cursor musicCursor = activity.getContentResolver().query(

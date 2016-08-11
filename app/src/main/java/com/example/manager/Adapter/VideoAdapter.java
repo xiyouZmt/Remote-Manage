@@ -77,6 +77,9 @@ public class VideoAdapter extends BaseAdapter {
         } else {
             file.checkBox.setChecked(false);
         }
+        if(file.getFileThumb() == null){
+            viewHolder.videoThumb.setBackgroundResource(R.drawable.pictures_no);
+        }
         viewHolder.videoName.setText(file.getFileName());
         StorageSize storageSize = new StorageSize();
         viewHolder.videoSize.setText(storageSize.typeChange(Double.parseDouble(file.getFileSize())));
@@ -106,7 +109,6 @@ public class VideoAdapter extends BaseAdapter {
         });
         BitmapWorker bitmapWorker = new BitmapWorker(viewHolder.videoThumb);
         bitmapWorker.execute(file.getFileThumb());
-
         return convertView;
     }
 

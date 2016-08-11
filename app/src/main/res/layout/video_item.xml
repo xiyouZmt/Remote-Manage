@@ -24,8 +24,7 @@
             android:layout_marginRight="3dp"
             android:layout_alignParentTop="true"
             android:layout_marginTop="3dp"
-            android:id="@+id/checkBox"
-            android:button="@null" />
+            android:id="@+id/checkBox" />
 
         <RelativeLayout
             android:layout_width="match_parent"

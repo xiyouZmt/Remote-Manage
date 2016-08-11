@@ -78,10 +78,8 @@ public class LoadFile {
         String videoSort = MediaStore.Video.Media.DISPLAY_NAME;
 //        Cursor videoCursor = contentResolver.query(
 //                Uri.parse("content://media/external/file"), null,
-//                MediaStore.Video.Media.MIME_TYPE + "=? or "
-//                        + MediaStore.Video.Media.MIME_TYPE + "=? or "
-//                        + MediaStore.Video.Media.MIME_TYPE + "=?",
-//                new String[]{"video/mp4", "video/rmvb", "video/mkv"}, videoSort);
+//                MediaStore.Files.FileColumns.DATA + " like ?",
+//                new String[]{"%.mp4"}, videoSort);
         Cursor videoCursor = contentResolver.query(FileFragment.videoUri, null, null, null, videoSort);
         if(videoCursor != null){
             while(videoCursor.moveToNext()){
