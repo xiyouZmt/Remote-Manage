@@ -18,18 +18,55 @@
 
     </GridView>
 
-    <com.example.manager.Utils.ArcProgress
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_centerInParent="true"
-        android:id="@+id/progress"
-        android:background="@drawable/connect_device"
+    <!--<com.example.manager.Utils.ArcProgress-->
+        <!--android:layout_width="120dp"-->
+        <!--android:layout_height="120dp"-->
+        <!--android:layout_centerInParent="true"-->
+        <!--android:id="@+id/progress"-->
+        <!--android:background="@drawable/connect_device"-->
+        <!--android:visibility="gone"-->
+        <!--custom:arc_progress="0"-->
+        <!--custom:arc_suffix_text_padding="5dp"-->
+        <!--custom:arc_bottom_text="上传中..."-->
+        <!--custom:arc_bottom_text_size="16sp"-->
+        <!--custom:arc_text_color="@color/color_e" />-->
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:visibility="gone"
-        custom:arc_progress="0"
-        custom:arc_suffix_text_padding="5dp"
-        custom:arc_bottom_text="上传中..."
-        custom:arc_bottom_text_size="16sp"
-        custom:arc_text_color="@color/color_e" />
+        android:id="@+id/progress_background">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#66333333"/>
+
+        <com.example.manager.Utils.CircleProgress
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_centerInParent="true"
+            android:id="@+id/progress"
+            custom:circle_progress="0"
+            custom:circle_finished_color="@color/blue"
+            custom:circle_unfinished_color="@color/color_9"
+            custom:circle_text_size="16sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="100dp"
+            android:layout_alignBottom="@+id/progress"
+            android:layout_marginBottom="30dp"
+            android:layout_centerInParent="true"
+            android:id="@+id/fileCount"
+            android:gravity="center"
+            android:singleLine="true"
+            android:ellipsize="middle"
+            android:textSize="16sp"
+            android:textColor="@color/color_e"/>
+
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

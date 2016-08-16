@@ -510,7 +510,7 @@ public class LoadFile {
                 return 1;
             } else {
                 for (File file : files) {
-                    copyFiles(file.getAbsolutePath(), targetFile.getPath());
+                    copyFiles(file.getAbsolutePath(), targetFile.getPath() + '/');
                 }
                 return 1;
             }
@@ -544,32 +544,12 @@ public class LoadFile {
     /**
      * 移动文件
      */
-    public boolean moveFile(String oldPath, String newPath){
+    public boolean moveFile(String oldPath, String newPath) {
         boolean move;
         File oldFile = new File(oldPath);
         File newFile = new File(newPath + oldFile.getName());
-        if(!oldFile.exists() || newFile.exists()
-                || oldPath.equals(newPath + oldFile.getName()) ){
-            move = false;
-        } else if(oldFile.isFile()){
-            move = oldFile.renameTo(new File(newPath + File.separator + oldFile.getName()));
-        } else {
-            if(!newFile.exists()){
-                newFile.mkdirs();
-                File [] sourceFile = oldFile.listFiles();
-                for(File file : sourceFile){
-                    if(file.isFile()){
-                        oldFile.renameTo(new File(newFile.getPath() + '/' + File.separator + file.getName()));
-                    }
-                    if(file.isDirectory()){
-                        moveFile(file.getAbsolutePath(), newFile.getAbsolutePath() + File.separator + file.getName());
-                    }
-                }
-                move = true;
-            } else {
-                move = false;
-            }
-        }
+        move = !(!oldFile.exists() || newFile.exists() || oldPath.equals(newPath + oldFile.getName()))
+                && oldFile.renameTo(new File(newPath + File.separator + oldFile.getName()));
         return move;
     }
 

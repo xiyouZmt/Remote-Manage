@@ -5,16 +5,23 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.manager.Adapter.FileAdapter;
@@ -23,9 +30,12 @@ import com.example.manager.Model.MediaFiles;
 import com.example.manager.R;
 import com.example.manager.Thread.SendFile;
 import com.example.manager.Utils.ActionBarUtil;
+import com.example.manager.Utils.CircleProgress;
 import com.example.manager.Utils.LoadFile;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +58,10 @@ public class WordActivity extends Activity {
     private LinearLayout chooseAll;
     private RelativeLayout no_files_image;
     private RelativeLayout no_files_text;
+    private PopupWindow popupWindow;
+    private RelativeLayout progress_background;
+    private CircleProgress circleProgress;
+    private TextView fileCount;
     private ProgressDialog progressDialog;
     private WordHandler wordHandler;
     private FileAdapter fileAdapter;
@@ -55,6 +69,7 @@ public class WordActivity extends Activity {
     public  static List<MediaFiles> choseFiles;
     private boolean hasChoseAll = false;
     private int count = 0;
+    private int max = 0;
     public  static List<String> newPath = new ArrayList<>();
 
     @Override
@@ -124,7 +139,7 @@ public class WordActivity extends Activity {
             switch (style){
                 case "文档" :
                     wordList = loadFile.loadWord(getContentResolver());
-                    wordHandler.sendEmptyMessage(0x000);
+                    wordHandler.sendEmptyMessage(0x011);
                     break;
                 case "压缩包" :
                     wordList = loadFile.loadZip(getContentResolver());
@@ -142,7 +157,7 @@ public class WordActivity extends Activity {
         public void handleMessage(Message msg){
             progressDialog.cancel();
             switch (msg.what) {
-                case 0x000 :
+                case 0x011 :
                     if (!wordList.isEmpty()) {
                         fileAdapter = new FileAdapter(getApplicationContext(), loadFile, wordList, choseFiles, edit);
                         listView.setAdapter(fileAdapter);
@@ -166,37 +181,46 @@ public class WordActivity extends Activity {
                         loadFile.addView(no_files_image, no_files_text, R.drawable.apk);
                     }
                     break;
-                case 0x333 :
-                    progressDialog.dismiss();
-                    app.getUser().connected = false;
-                    Toast.makeText(WordActivity.this, "连接失败，请重新连接", Toast.LENGTH_SHORT).show();
+                case 0x000 :
+                    String percentage = String.valueOf(msg.arg1 * 100 / max);
+                    circleProgress.setProgress(circleProgress.getProgress() + Integer.parseInt(percentage));
                     break;
                 case 0x001 :
                     count ++;
                     if(count < choseFiles.size()) {
+                        fileCount.setText("共" + choseFiles.size() + "项, 第" + count + 1 + "项");
                         File file = new File(choseFiles.get(count).getFilePath());
+                        try {
+                            max = new FileInputStream(file).available();
+                        } catch (IOException e) {
+                            Log.e("io error--->", e.toString());
+                        }
                         SendFile ft = new SendFile(app.getUser().socket, app.getUser().IP, app.getUser().port, file, wordHandler);
                         Thread t = new Thread(ft, "SendFile");
                         t.start();
                     } else {
-                        progressDialog.dismiss();
+                        progress_background.setVisibility(View.GONE);
                         count = 0;
-                        if(edit.getVisibility() == View.VISIBLE){
-                            if(hasChoseAll){
-                                for (int i = 0; i < loadFile.getMusicList().size(); i++) {
-                                    loadFile.getMusicList().get(i).count = 0;
-                                }
-                            } else {
-                                for (int i = 0; i < choseFiles.size(); i++) {
-                                    choseFiles.get(i).count = 0;
-                                }
+                        if(hasChoseAll){
+                            for (int i = 0; i < wordList.size(); i++) {
+                                wordList.get(i).count = 0;
                             }
-                            choseFiles.clear();
-                            fileAdapter.notifyDataSetChanged();
-                            edit.setVisibility(View.GONE);
+                        } else {
+                            for (int i = 0; i < choseFiles.size(); i++) {
+                                choseFiles.get(i).count = 0;
+                            }
                         }
+                        choseFiles.clear();
+                        fileAdapter.notifyDataSetChanged();
+                        circleProgress.setProgress(0);
                         Toast.makeText(WordActivity.this, "传输完成!", Toast.LENGTH_SHORT).show();
                     }
+                    break;
+                case 0x333 :
+                    progressDialog.dismiss();
+                    app.getUser().connected = false;
+                    circleProgress.setProgress(0);
+                    Toast.makeText(WordActivity.this, "连接失败，请重新连接", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -227,16 +251,25 @@ public class WordActivity extends Activity {
                     startActivity(intent);
                     break;
                 case R.id.share :
-                    if(app.getUser().connected) {
-                        progressDialog.setMessage("传输中...");
-                        progressDialog.show();
-                        File file = new File(choseFiles.get(0).getFilePath());
-                        SendFile ft = new SendFile(app.getUser().socket, app.getUser().IP, app.getUser().port, file, wordHandler);
-                        Thread t = new Thread(ft, "SendFile");
-                        t.start();
-                    } else {
-                        Toast.makeText(WordActivity.this, "设备未连接，请先连接设备", Toast.LENGTH_SHORT).show();
-                    }
+                    View view = getLayoutInflater().inflate(R.layout.choose_type, null);
+                    Button toPc = (Button) view.findViewById(R.id.pc);
+                    Button toPhone = (Button) view.findViewById(R.id.phone);
+                    Button cancel = (Button) view.findViewById(R.id.cancel);
+                    toPc.setOnClickListener(new ShareListener());
+                    toPhone.setOnClickListener(new ShareListener());
+                    cancel.setOnClickListener(new ShareListener());
+                    popupWindow.setContentView(view);
+                    popupWindow.showAtLocation(view, Gravity.BOTTOM, 0, 0);
+//                    if(app.getUser().connected) {
+//                        progressDialog.setMessage("传输中...");
+//                        progressDialog.show();
+//                        File file = new File(choseFiles.get(0).getFilePath());
+//                        SendFile ft = new SendFile(app.getUser().socket, app.getUser().IP, app.getUser().port, file, wordHandler);
+//                        Thread t = new Thread(ft, "SendFile");
+//                        t.start();
+//                    } else {
+//                        Toast.makeText(WordActivity.this, "设备未连接，请先连接设备", Toast.LENGTH_SHORT).show();
+//                    }
                     break;
                 case R.id.delete :
                     AlertDialog.Builder dialog = new AlertDialog.Builder(WordActivity.this);
@@ -275,32 +308,46 @@ public class WordActivity extends Activity {
         }
     }
 
+    public class ShareListener implements View.OnClickListener{
+
+        @Override
+        public void onClick(View v) {
+            popupWindow.dismiss();
+            switch (v.getId()){
+                case R.id.pc :
+                    if(app.getUser().connected) {
+                        edit.setVisibility(View.GONE);
+                        progress_background.setVisibility(View.VISIBLE);
+                        fileCount.setText("共" + choseFiles.size() + "项, 第1项" );
+                        File file = new File(choseFiles.get(0).getFilePath());
+                        try {
+                            max = new FileInputStream(file).available();
+                        } catch (IOException e) {
+                            Log.e("io error--->", e.toString());
+                        }
+                        SendFile ft = new SendFile(app.getUser().socket, app.getUser().IP, app.getUser().port, file, wordHandler);
+                        Thread t = new Thread(ft, "SendFile");
+                        t.start();
+                    } else {
+                        Toast.makeText(WordActivity.this, "设备未连接，请先连接设备", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case R.id.phone :
+                    break;
+                case R.id.cancel :
+                    popupWindow.dismiss();
+                    break;
+            }
+        }
+    }
+
+
     public class WordListListener implements AdapterView.OnItemClickListener{
 
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//            MediaFiles mediaFiles = wordList.get(position);
-//            if(mediaFiles.count == 1){
-//                mediaFiles.count = 0;
-//                mediaFiles.checkBox.setChecked(false);
-//                choseFiles.remove(mediaFiles);
-//                int aChoose;
-//                for (aChoose = 0; aChoose < wordList.size(); aChoose ++) {
-//                    if (wordList.get(aChoose).count == 1) {
-//                        break;
-//                    }
-//                }
-//                if(aChoose == wordList.size()){
-//                    edit.setVisibility(View.GONE);
-//                }
-//            } else {
-//                mediaFiles.count = 1;
-//                mediaFiles.checkBox.setChecked(true);
-//                choseFiles.add(mediaFiles);
-//                edit.setVisibility(View.VISIBLE);
-//            }
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            Uri uri = uri = Uri.parse("file://" + wordList.get(position).getFilePath());;
+            Uri uri = Uri.parse("file://" + wordList.get(position).getFilePath());
             switch (style){
                 case "文档" :
                     intent.setDataAndType(uri, "text/*");
@@ -401,6 +448,17 @@ public class WordActivity extends Activity {
         no_files_image = (RelativeLayout) findViewById(R.id.no_files_image);
         no_files_text = (RelativeLayout) findViewById(R.id.no_files_text);
         loadFile = new LoadFile(WordActivity.this);
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        popupWindow = new PopupWindow(WordActivity.this);
+        popupWindow.setWidth((int) (displayMetrics.widthPixels * 0.9));
+        popupWindow.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
+        popupWindow.setBackgroundDrawable(new ColorDrawable());
+        popupWindow.setFocusable(true);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setAnimationStyle(R.style.share_style);
+        progress_background = (RelativeLayout) findViewById(R.id.progress_background);
+        circleProgress = (CircleProgress) findViewById(R.id.progress);
+        fileCount = (TextView) findViewById(R.id.fileCount);
         progressDialog = new ProgressDialog(WordActivity.this);
         progressDialog.setCanceledOnTouchOutside(false);
         wordHandler = new WordHandler();

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="share_style" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/share_in</item>
+        <item name="android:windowExitAnimation">@anim/share_out</item>
+    </style>
+
+</resources>

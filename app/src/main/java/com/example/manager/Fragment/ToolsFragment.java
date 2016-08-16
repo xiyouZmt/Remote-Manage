@@ -55,7 +55,6 @@ public class ToolsFragment extends Fragment {
         view = inflater.inflate(R.layout.activity_tools, null);
         initViews();
         setListener();
-
         return view;
     }
 
@@ -302,7 +301,7 @@ public class ToolsFragment extends Fragment {
         search.setVisibility(View.GONE);
         back.setVisibility(View.GONE);
         menu.setVisibility(View.VISIBLE);
-        title.setText("实用工具");
+        title.setText("远程助手");
         linear_power = (LinearLayout) view.findViewById(R.id.linear_power);
         linear_volume = (LinearLayout) view.findViewById(R.id.linear_volume);
         linear_brightness = (LinearLayout) view.findViewById(R.id.linear_brightness);

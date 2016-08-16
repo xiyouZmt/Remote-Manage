@@ -1,25 +1,36 @@
 package com.example.manager.Activity;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.manager.Adapter.FileAdapter;
@@ -46,7 +57,6 @@ import java.util.List;
  * Created by Dangelo on 2016/4/3.
  */
 public class MusicActivity extends Activity {
-
     private App app;
     private ListView listView;
     private LinearLayout back;
@@ -64,12 +74,15 @@ public class MusicActivity extends Activity {
     private RelativeLayout no_files_image;
     private RelativeLayout no_files_text;
     private List<MediaFiles> searchList;
+    private PopupWindow popupWindow;
+    private RelativeLayout progress_background;
     private CircleProgress circleProgress;
+    private TextView fileCount;
     private FileAdapter musicAdapter;
     private MusicHandler musicHandler;
     private ProgressDialog progressDialog;
     private int count = 0;
-    private String percentage;
+    private int max = 0;
     private boolean hasChoseAll = false;
     private boolean isSearching = false;
     public  static List<MediaFiles> choseFiles;
@@ -120,6 +133,7 @@ public class MusicActivity extends Activity {
 
     public class MusicListener implements View.OnClickListener{
 
+        @TargetApi(Build.VERSION_CODES.KITKAT)
         @Override
         public void onClick(View v) {
             Intent intent = new Intent();
@@ -152,22 +166,15 @@ public class MusicActivity extends Activity {
                     startActivity(intent);
                     break;
                 case R.id.share :
-                    if(app.getUser().connected) {
-//                        progressDialog.show();
-                        circleProgress.setVisibility(View.VISIBLE);
-                        File file = new File(choseFiles.get(0).getFilePath());
-                        try {
-                            int max = new FileInputStream(file).available();
-                            circleProgress.setMax(max);
-                        } catch (IOException e) {
-                            Log.e("io error--->", e.toString());
-                        }
-                        SendFile ft = new SendFile(app.getUser().socket, app.getUser().IP, app.getUser().port, file, musicHandler);
-                        Thread t = new Thread(ft, "SendFile");
-                        t.start();
-                    } else {
-                        Toast.makeText(MusicActivity.this, "设备未连接，请先连接设备", Toast.LENGTH_SHORT).show();
-                    }
+                    View view = getLayoutInflater().inflate(R.layout.choose_type, null);
+                    Button toPc = (Button) view.findViewById(R.id.pc);
+                    Button toPhone = (Button) view.findViewById(R.id.phone);
+                    Button cancel = (Button) view.findViewById(R.id.cancel);
+                    toPc.setOnClickListener(new ShareListener());
+                    toPhone.setOnClickListener(new ShareListener());
+                    cancel.setOnClickListener(new ShareListener());
+                    popupWindow.setContentView(view);
+                    popupWindow.showAtLocation(view, Gravity.BOTTOM, 0, 0);
                     break;
                 case R.id.delete :
                     AlertDialog.Builder dialog = new AlertDialog.Builder(MusicActivity.this);
@@ -206,6 +213,39 @@ public class MusicActivity extends Activity {
         }
     }
 
+    public class ShareListener implements View.OnClickListener{
+
+        @Override
+        public void onClick(View v) {
+            popupWindow.dismiss();
+            switch (v.getId()){
+                case R.id.pc :
+                    if(app.getUser().connected) {
+                        edit.setVisibility(View.GONE);
+                        progress_background.setVisibility(View.VISIBLE);
+                        fileCount.setText("共" + choseFiles.size() + "项, 第1项" );
+                        File file = new File(choseFiles.get(0).getFilePath());
+                        try {
+                            max = new FileInputStream(file).available();
+                        } catch (IOException e) {
+                            Log.e("io error--->", e.toString());
+                        }
+                        SendFile ft = new SendFile(app.getUser().socket, app.getUser().IP, app.getUser().port, file, musicHandler);
+                        Thread t = new Thread(ft, "SendFile");
+                        t.start();
+                    } else {
+                        Toast.makeText(MusicActivity.this, "设备未连接，请先连接设备", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case R.id.phone :
+                    break;
+                case R.id.cancel :
+                    popupWindow.dismiss();
+                    break;
+            }
+        }
+    }
+
     public class MusicListListener implements AdapterView.OnItemClickListener{
 
         List<MediaFiles> list;
@@ -217,26 +257,6 @@ public class MusicActivity extends Activity {
             } else {
                 list = loadFile.getMusicList();
             }
-//            MediaFiles mediaFiles = list.get(position);
-//            if(mediaFiles.count == 1){
-//                mediaFiles.count = 0;
-//                mediaFiles.checkBox.setChecked(false);
-//                choseFiles.remove(mediaFiles);
-//                int aChoose;
-//                for (aChoose = 0; aChoose < list.size(); aChoose ++) {
-//                    if (list.get(aChoose).count == 1) {
-//                        break;
-//                    }
-//                }
-//                if(aChoose == list.size()){
-//                    edit.setVisibility(View.GONE);
-//                }
-//            } else {
-//                mediaFiles.count = 1;
-//                mediaFiles.checkBox.setChecked(true);
-//                choseFiles.add(mediaFiles);
-//                edit.setVisibility(View.VISIBLE);
-//            }
             Intent intent = new Intent(Intent.ACTION_VIEW);
             Uri uri = Uri.parse("file://" + loadFile.getMusicList().get(position).getFilePath());
             intent.setDataAndType(uri, "audio/*");
@@ -312,15 +332,17 @@ public class MusicActivity extends Activity {
         public void handleMessage(Message msg){
             switch (msg.what){
                 case 0x000 :
-                    percentage = String.valueOf(msg.arg1 * 100 / circleProgress.getMax());
+                    int x = msg.arg1 * 100 / max;
+                    String percentage = String.valueOf(msg.arg1 * 100 / max);
                     circleProgress.setProgress(circleProgress.getProgress() + Integer.parseInt(percentage));
                     break;
                 case 0x001 :
                     count ++;
                     if(count < choseFiles.size()) {
+                        fileCount.setText("共" + choseFiles.size() + "项, 第" + count + 1 + "项");
                         File file = new File(choseFiles.get(count).getFilePath());
                         try {
-                            circleProgress.setMax(new FileInputStream(file).available());
+                            max = new FileInputStream(file).available();
                         } catch (IOException e) {
                             Log.e("io error--->", e.toString());
                         }
@@ -328,34 +350,29 @@ public class MusicActivity extends Activity {
                         Thread t = new Thread(ft, "SendFile");
                         t.start();
                     } else {
-                        progressDialog.dismiss();
-                        circleProgress.setVisibility(View.GONE);
+                        progress_background.setVisibility(View.GONE);
                         count = 0;
-                        if(edit.getVisibility() == View.VISIBLE){
-                            if(hasChoseAll){
-                                for (int i = 0; i < loadFile.getMusicList().size(); i++) {
-                                    loadFile.getMusicList().get(i).count = 0;
-                                }
-                            } else {
-                                for (int i = 0; i < choseFiles.size(); i++) {
-                                    choseFiles.get(i).count = 0;
-                                }
+                        if(hasChoseAll){
+                            for (int i = 0; i < loadFile.getMusicList().size(); i++) {
+                                loadFile.getMusicList().get(i).count = 0;
                             }
-                            choseFiles.clear();
-                            musicAdapter.notifyDataSetChanged();
-                            edit.setVisibility(View.GONE);
+                        } else {
+                            for (int i = 0; i < choseFiles.size(); i++) {
+                                choseFiles.get(i).count = 0;
+                            }
                         }
-                        Toast.makeText(MusicActivity.this, "传输完成!", Toast.LENGTH_SHORT).show();
+                        choseFiles.clear();
+                        musicAdapter.notifyDataSetChanged();
                         circleProgress.setProgress(0);
+                        Toast.makeText(MusicActivity.this, "传输完成!", Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case 0x333 :
                     progressDialog.dismiss();
                     app.getUser().connected = false;
-                    Toast.makeText(MusicActivity.this, "连接失败，请重新连接", Toast.LENGTH_SHORT).show();
                     circleProgress.setProgress(0);
+                    Toast.makeText(MusicActivity.this, "连接失败，请重新连接", Toast.LENGTH_SHORT).show();
                     break;
-
             }
         }
     }
@@ -408,12 +425,23 @@ public class MusicActivity extends Activity {
         chooseAll = (LinearLayout) findViewById(R.id.chooseAll);
         no_files_image = (RelativeLayout) findViewById(R.id.no_files);
         no_files_text = (RelativeLayout) findViewById(R.id.no_files_text);
-        circleProgress = (CircleProgress) findViewById(R.id.progress);
+
         loadFile = new LoadFile(MusicActivity.this);
         choseFiles = new ArrayList<>();
         searchList = new ArrayList<>();
         musicHandler = new MusicHandler();
         progressDialog = new ProgressDialog(this);
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        popupWindow = new PopupWindow(MusicActivity.this);
+        popupWindow.setWidth((int) (displayMetrics.widthPixels * 0.9));
+        popupWindow.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
+        popupWindow.setBackgroundDrawable(new ColorDrawable());
+        popupWindow.setFocusable(true);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setAnimationStyle(R.style.share_style);
+        progress_background = (RelativeLayout) findViewById(R.id.progress_background);
+        circleProgress = (CircleProgress) findViewById(R.id.progress);
+        fileCount = (TextView) findViewById(R.id.fileCount);
         progressDialog.setMessage("传输中...");
         progressDialog.setCanceledOnTouchOutside(false);
         app = (App)getApplication();

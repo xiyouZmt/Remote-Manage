@@ -16,5 +16,7 @@
     <color name="purple">  #9d55b8 </color>
     <color name="color_272636">#272636</color>
     <color name="color_3481f2">#3481f2</color>
+    <color name="color_00ffffff">#00ffffff</color>
+    <color name="color_fafafa">#fafafa</color>
 
 </resources>

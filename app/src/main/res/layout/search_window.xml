@@ -77,7 +77,7 @@
             <!--android:layout_gravity="center_vertical"-->
             <!--android:layout_marginStart="10dp"-->
             <!--android:layout_marginEnd="10dp"-->
-            <!--android:id="@+id/cancel"-->
+            <!--android:id="@+id/type"-->
             <!--android:background="@drawable/oval"-->
             <!--android:text="取消"-->
             <!--android:textSize="16sp"-->

@@ -9,7 +9,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_centerVertical="true"
-        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
         android:gravity="center"
         android:id="@+id/menu"
         android:background="@drawable/actionbar_button"
@@ -26,7 +26,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_centerVertical="true"
-        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
         android:gravity="center"
         android:id="@+id/back"
         android:background="@drawable/actionbar_button"
@@ -42,8 +42,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/menu"
-        android:layout_marginStart="15dp"
+        android:layout_toRightOf="@+id/menu"
+        android:layout_marginLeft="15dp"
         android:layout_centerVertical="true"
         android:id="@+id/fileName"
         android:text="@string/music"
@@ -54,8 +54,8 @@
     <LinearLayout
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="10dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
         android:layout_centerVertical="true"
         android:gravity="center"
         android:id="@+id/search"
@@ -72,8 +72,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_toEndOf="@+id/fileName"
-        android:layout_marginStart="10dp"
+        android:layout_toRightOf="@+id/fileName"
+        android:layout_marginLeft="10dp"
         android:id="@+id/relative_search"
         android:visibility="gone">
 
@@ -81,15 +81,15 @@
             android:layout_width="match_parent"
             android:layout_height="25dp"
             android:layout_centerVertical="true"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="60dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="60dp"
             android:background="@drawable/edit_text">
 
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:layout_gravity="center_vertical"
                 android:id="@+id/editText"
                 android:background="@null"
@@ -105,8 +105,8 @@
         <LinearLayout
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="10dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
             android:layout_centerVertical="true"
             android:gravity="center"
             android:id="@+id/cancel"

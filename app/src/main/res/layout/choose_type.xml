@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/pc"
+        android:background="@drawable/to_pc"
+        android:text="到我的电脑"
+        android:textSize="16sp"
+        android:textColor="@color/bright_blue"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/color_c"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/phone"
+        android:background="@drawable/to_phone"
+        android:text="到客户端"
+        android:textSize="16sp"
+        android:textColor="@color/bright_blue"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/cancel"
+        android:background="@drawable/cancel"
+        android:text="取消"
+        android:textSize="16sp"
+        android:textColor="@color/bright_blue"/>
+
+</LinearLayout>

@@ -93,7 +93,6 @@ public class CircleProgress extends View {
         textPaint.setColor(textColor);
         textPaint.setTextSize(textSize);
         textPaint.setAntiAlias(true);
-
         paint.setAntiAlias(true);
     }
 
