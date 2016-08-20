@@ -47,7 +47,7 @@ public class MyRecognizerDialogLister implements RecognizerDialogListener{
 		} else if(text.contains("视频")){
 			type = "dvdplay Windows";
 		} else if(text.contains("音乐")  || text.contains("歌")){
-			type = "cmd /c start \"\" \"E:\\song\\Avril Lavigne - 17.mp3\"";
+			type = "cmd /c start \"\" \"E:/song/Avril Lavigne - 17.mp3\"";
 		} else if(text.contains("写字")){
 			type = "write";
 		} else if(text.contains("画")){

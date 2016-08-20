@@ -41,7 +41,6 @@ public class ServerThread implements Runnable {
             while (true){
                 Socket socket = serverSocket.accept();
                 Log.e("connect--->", "客户端连接成功");
-                handler.sendEmptyMessage(0x000);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 StringBuilder builder = new StringBuilder();
                 String line;

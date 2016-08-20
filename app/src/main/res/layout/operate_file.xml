@@ -4,9 +4,12 @@
     android:layout_height="wrap_content"
     android:background="@color/color_e">
 
+    <include layout="@layout/actionbar"/>
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/actionbar"
         android:id="@+id/operateList"
         android:background="@color/color_e"
         android:dividerHeight="0.5dp"
@@ -46,7 +49,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:id="@+id/cancel"
+            android:id="@+id/paste_cancel"
             android:background="@drawable/pressed"
             android:text="@string/cancel"
             android:textSize="15sp"

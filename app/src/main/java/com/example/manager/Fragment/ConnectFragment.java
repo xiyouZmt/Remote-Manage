@@ -189,12 +189,12 @@ public class ConnectFragment extends Fragment {
             Connect connect = new Connect(connectHandler, app.getUser().socket, count.getText().toString(), app.getUser().port);
             Thread t = new Thread(connect, "Connect");
             t.start();
-            /**
-             * 启动服务端接收文件
-             */
-            ServerThread serverThread = new ServerThread(connectHandler, app.getUser().port);
-            Thread thread = new Thread(serverThread, "ServerThread");
-            thread.start();
+//            /**
+//             * 启动服务端接收文件
+//             */
+//            ServerThread serverThread = new ServerThread(connectHandler, app.getUser().port);
+//            Thread thread = new Thread(serverThread, "ServerThread");
+//            thread.start();
         }
     }
 

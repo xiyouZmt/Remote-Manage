@@ -10,10 +10,12 @@ import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.manager.Adapter.OperateAdapter;
@@ -53,7 +55,7 @@ public class OperateActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActionBarUtil.initActionBar(getActionBar(), "选择粘贴位置", 0x222);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.operate_file);
         initView();
         setListener();
@@ -218,14 +220,6 @@ public class OperateActivity extends Activity {
 
     public class OperateHandler extends Handler{
         public void handleMessage(Message msg){
-//            switch (msg.obj.toString()){
-//                case "move failed" :
-//                    Toast.makeText(OperateActivity.this, file.getFileName() + "已存在！", Toast.LENGTH_SHORT).show();
-//                    break;
-//                case "copy failed" :
-//                    Toast.makeText(OperateActivity.this, file.getFileName() + "已存在！", Toast.LENGTH_SHORT).show();
-//                    break;
-//            }
             count ++;
             if(count < choseFiles.size()){
                 file = choseFiles.get(count);
@@ -272,8 +266,8 @@ public class OperateActivity extends Activity {
                 lastFiles = loadFile.loadStorage(path.substring(0, path.lastIndexOf('/')));
             } else {
                 MediaFiles file1 = loadFile.getStorage().get(0);
-                MediaFiles file2 = new LoadFile(OperateActivity.this).loadStorage(Environment.getExternalStorageDirectory() + "/").get(0);
-                if (file1.getFilePath().equals(file2.getFilePath())) {
+                if (new File(file1.getFilePath()).getParent()
+                        .equals(Environment.getExternalStorageDirectory() + "")) {
                     finish();
                     return true;
                 } else {
@@ -302,11 +296,11 @@ public class OperateActivity extends Activity {
 
     public void initView(){
         back = (LinearLayout) findViewById(R.id.back);
-        LinearLayout search = (LinearLayout) findViewById(R.id.search);
-        search.setVisibility(View.GONE);
+        TextView fileName = (TextView) findViewById(R.id.fileName);
+        fileName.setText("选择粘贴位置");
         operateList = (ListView) findViewById(R.id.operateList);
         paste = (Button) findViewById(R.id.paste);
-        cancel = (Button) findViewById(R.id.cancel);
+        cancel = (Button) findViewById(R.id.paste_cancel);
         loadFile = new LoadFile(OperateActivity.this);
         choseFiles = new ArrayList<>();
         progressDialog = new ProgressDialog(this);
@@ -314,5 +308,4 @@ public class OperateActivity extends Activity {
         progressDialog.setCancelable(false);
         operateHandler = new OperateHandler();
     }
-
 }
