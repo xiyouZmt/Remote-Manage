@@ -19,8 +19,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.example.manager.Activity.HomeActivity;
 import com.example.manager.Activity.FolderActivity;
+import com.example.manager.Activity.HomeActivity;
 import com.example.manager.Activity.MusicActivity;
 import com.example.manager.Activity.StorageActivity;
 import com.example.manager.Activity.VideoActivity;
@@ -59,64 +59,18 @@ public class FileFragment extends Fragment {
     private Intent intent;
     private SetCountHandler setCountHandler;
     private ImageView line;
-
-    public  static Map<String, List<MediaFiles>> map;
+    public  static Thread thread = new Thread();
+    public  static boolean getSuffixFile = false;
     public  static final Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
     public  static final Uri videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
     public  static final Uri imageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-    public  static boolean getSuffixFile = false;
-    public  static Thread thread = new Thread();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.activity_main, null);
         initView();
         setListener();
-        StorageSize storageSize = new StorageSize();
-        String storageIn = storageSize.getAvailableInternalMemorySize(getActivity());
-        String totalSize = storageSize.getInternalMemorySize(getActivity());
-        useful_storage.setText(storageIn + "可用");
-
-        /**
-         * 手机总存储空间
-         */
-        String maxSize = totalSize.substring(0, totalSize.lastIndexOf(' '));
-        String doubleMax = String.valueOf(Double.parseDouble(maxSize) * 100);
-        int max = Integer.parseInt(doubleMax.substring(0, doubleMax.lastIndexOf('.')));
-        /**
-         * 手机剩余存储空间
-         */
-        String hasUsed = storageIn.substring(0, storageIn.lastIndexOf(' '));
-        String doubleSize = String.valueOf(Double.parseDouble(hasUsed) * 100);
-        int size = Integer.parseInt(doubleSize.substring(0, doubleSize.lastIndexOf('.')));
-        progressBar.setMax(max);
-        progressBar.setProgress(max - size);
-
-        if(storageSize.externalStorageAvailable() != null){
-            relative_storage_out.setVisibility(View.VISIBLE);
-            line.setVisibility(View.VISIBLE);
-            String storageOut = storageSize.getAvailableExternalMemorySize(getActivity());
-            totalSize = storageSize.getExternalMemorySize(getActivity());
-            useful_storage_out.setText(storageOut + "可用");
-
-            /**
-             * SD卡总存储空间
-             */
-            maxSize = totalSize.substring(0, totalSize.lastIndexOf(' '));
-            doubleMax = String.valueOf(Double.parseDouble(maxSize) * 100);
-            max = Integer.parseInt(doubleMax.substring(0, doubleMax.lastIndexOf('.')));
-            /**
-             * SD卡剩余存储空间
-             */
-            hasUsed = storageOut.substring(0, storageIn.lastIndexOf(' '));
-            doubleSize = String.valueOf(Double.parseDouble(hasUsed) * 100);
-            size = Integer.parseInt(doubleSize.substring(0, doubleSize.lastIndexOf('.')));
-            progressBarOut.setMax(max);
-            progressBarOut.setProgress(max - size);
-        }
-        Log.w("TotalInternal", storageSize.getInternalMemorySize(getActivity()));
-        Log.w("AvailableInternal", storageSize.getAvailableInternalMemorySize(getActivity()));
-
+        setStorage();
         return view;
     }
 
@@ -273,6 +227,53 @@ public class FileFragment extends Fragment {
         thread.start();
     }
 
+    public void setStorage(){
+        StorageSize storageSize = new StorageSize();
+        String storageIn = storageSize.getAvailableInternalMemorySize(getActivity());
+        String totalSize = storageSize.getInternalMemorySize(getActivity());
+        useful_storage.setText(storageIn + "可用");
+        /**
+         * 手机总存储空间
+         */
+        String maxSize = totalSize.substring(0, totalSize.lastIndexOf(' '));
+        String doubleMax = String.valueOf(Double.parseDouble(maxSize) * 100);
+        int max = Integer.parseInt(doubleMax.substring(0, doubleMax.lastIndexOf('.')));
+        /**
+         * 手机剩余存储空间
+         */
+        String hasUsed = storageIn.substring(0, storageIn.lastIndexOf(' '));
+        String doubleSize = String.valueOf(Double.parseDouble(hasUsed) * 100);
+        int size = Integer.parseInt(doubleSize.substring(0, doubleSize.lastIndexOf('.')));
+        progressBar.setMax(max);
+        progressBar.setProgress(max - size);
+        /**
+         * 判断SD卡是否可用
+         */
+        if(storageSize.externalStorageAvailable() != null){
+            relative_storage_out.setVisibility(View.VISIBLE);
+            line.setVisibility(View.VISIBLE);
+            String storageOut = storageSize.getAvailableExternalMemorySize(getActivity());
+            totalSize = storageSize.getExternalMemorySize(getActivity());
+            useful_storage_out.setText(storageOut + "可用");
+            /**
+             * SD卡总存储空间
+             */
+            maxSize = totalSize.substring(0, totalSize.lastIndexOf(' '));
+            doubleMax = String.valueOf(Double.parseDouble(maxSize) * 100);
+            max = Integer.parseInt(doubleMax.substring(0, doubleMax.lastIndexOf('.')));
+            /**
+             * SD卡剩余存储空间
+             */
+            hasUsed = storageOut.substring(0, storageIn.lastIndexOf(' '));
+            doubleSize = String.valueOf(Double.parseDouble(hasUsed) * 100);
+            size = Integer.parseInt(doubleSize.substring(0, doubleSize.lastIndexOf('.')));
+            progressBarOut.setMax(max);
+            progressBarOut.setProgress(max - size);
+        }
+        Log.w("TotalInternal", storageSize.getInternalMemorySize(getActivity()));
+        Log.w("AvailableInternal", storageSize.getAvailableInternalMemorySize(getActivity()));
+    }
+
     public void setListener(){
         menu.setOnClickListener(new HomeListener());
         linear_music.setOnClickListener(new HomeListener());
@@ -319,5 +320,4 @@ public class FileFragment extends Fragment {
         intent = new Intent();
         setCountHandler = new SetCountHandler();
     }
-
 }

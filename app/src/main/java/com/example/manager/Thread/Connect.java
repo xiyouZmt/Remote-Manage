@@ -1,5 +1,6 @@
 package com.example.manager.Thread;
 
+import android.os.Handler;
 import android.util.Log;
 
 import com.example.manager.Fragment.ConnectFragment;
@@ -15,11 +16,13 @@ import java.util.concurrent.TimeoutException;
  * Created by Dangelo on 2016/5/20.
  */
 public class Connect implements Runnable {
+    private Handler handler;
     private Socket socket;
     private String IP;
     private int port;
 
-    public Connect(Socket socket, String IP, int port){
+    public Connect(Handler handler, Socket socket, String IP, int port) {
+        this.handler = handler;
         this.socket = socket;
         this.IP = IP;
         this.port = port;
@@ -29,13 +32,13 @@ public class Connect implements Runnable {
     public void run() {
         try {
             socket = new Socket(IP, port);
-            ConnectFragment.connectHandler.sendEmptyMessage(0x000);
+            handler.sendEmptyMessage(0x000);
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             writer.close();
             socket.close();
         } catch (IOException e) {
             Log.e("Socket Error", e.toString());
-            ConnectFragment.connectHandler.sendEmptyMessage(0x111);
+            handler.sendEmptyMessage(0x111);
         }
     }
 }

@@ -12,9 +12,11 @@ import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.manager.Adapter.ImageAdapter;
@@ -38,7 +40,6 @@ public class ImageActivity extends Activity {
     private App app;
     private GridView gridView;
     private LinearLayout back;
-    private LinearLayout search;
     private LinearLayout copy;
     private LinearLayout move;
     private LinearLayout share;
@@ -57,7 +58,8 @@ public class ImageActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActionBarUtil.initActionBar(getActionBar(), getIntent().getStringExtra("folderName"), 0x222);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        ActionBarUtil.initActionBar(getActionBar(), getIntent().getStringExtra("folderName"), 0x222);
         setContentView(R.layout.imagelayout);
         initView();
         setListener();
@@ -103,26 +105,6 @@ public class ImageActivity extends Activity {
 
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//            MediaFiles mediaFiles = loadFile.getImageList().get(position);
-//            if(mediaFiles.count == 1){
-//                mediaFiles.count = 0;
-//                mediaFiles.checkBox.setChecked(false);
-//                choseFiles.remove(mediaFiles);
-//                int aChoose;
-//                for (aChoose = 0; aChoose < loadFile.getImageList().size(); aChoose ++) {
-//                    if (loadFile.getImageList().get(aChoose).count == 1) {
-//                        break;
-//                    }
-//                }
-//                if(aChoose == loadFile.getImageList().size()){
-//                    edit.setVisibility(View.GONE);
-//                }
-//            } else {
-//                mediaFiles.count = 1;
-//                mediaFiles.checkBox.setChecked(true);
-//                choseFiles.add(mediaFiles);
-//                edit.setVisibility(View.VISIBLE);
-//            }
             Intent intent = new Intent(Intent.ACTION_VIEW);
             Uri uri = Uri.parse("file://" + loadFile.getImageList().get(position).getFilePath());
             intent.setDataAndType(uri, "image/*");
@@ -302,7 +284,6 @@ public class ImageActivity extends Activity {
 
     public void setListener(){
         back.setOnClickListener(new ImageListener());
-        search.setOnClickListener(new ImageListener());
         copy.setOnClickListener(new ImageListener());
         move.setOnClickListener(new ImageListener());
         share.setOnClickListener(new ImageListener());
@@ -313,7 +294,8 @@ public class ImageActivity extends Activity {
 
     public void initView(){
         back = (LinearLayout) findViewById(R.id.back);
-        search = (LinearLayout) findViewById(R.id.search);
+        TextView fileName = (TextView) findViewById(R.id.fileName);
+        fileName.setText(getIntent().getStringExtra("folderName"));
         gridView = (GridView) findViewById(R.id.gridView);
         edit = (LinearLayout) findViewById(R.id.edit);
         copy = (LinearLayout) findViewById(R.id.copy);
@@ -327,7 +309,5 @@ public class ImageActivity extends Activity {
         progressDialog.setMessage("传输中...");
         progressDialog.setCanceledOnTouchOutside(false);
         app = (App) getApplication();
-        search.setVisibility(View.GONE);
     }
-
 }

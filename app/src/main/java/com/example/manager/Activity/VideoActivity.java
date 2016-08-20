@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
@@ -79,7 +80,8 @@ public class VideoActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActionBarUtil.initActionBar(getActionBar(), getResources().getString(R.string.video), 0x222);
+//        ActionBarUtil.initActionBar(getActionBar(), getResources().getString(R.string.video), 0x222);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.video_layout);
         initView();
         setListener();
@@ -155,11 +157,9 @@ public class VideoActivity extends Activity {
                     break;
                 case R.id.share :
                     View view = getLayoutInflater().inflate(R.layout.choose_type, null);
-                    Button toPc = (Button) view.findViewById(R.id.pc);
-                    Button toPhone = (Button) view.findViewById(R.id.phone);
+                    Button commit = (Button) view.findViewById(R.id.commit);
                     Button cancel = (Button) view.findViewById(R.id.cancel);
-                    toPc.setOnClickListener(new ShareListener());
-                    toPhone.setOnClickListener(new ShareListener());
+                    commit.setOnClickListener(new ShareListener());
                     cancel.setOnClickListener(new ShareListener());
                     popupWindow.setContentView(view);
                     popupWindow.showAtLocation(view, Gravity.BOTTOM, 0, 0);
@@ -207,7 +207,7 @@ public class VideoActivity extends Activity {
         public void onClick(View v) {
             popupWindow.dismiss();
             switch (v.getId()){
-                case R.id.pc :
+                case R.id.commit :
                     if(app.getUser().connected) {
                         edit.setVisibility(View.GONE);
                         progress_background.setVisibility(View.VISIBLE);
@@ -224,8 +224,6 @@ public class VideoActivity extends Activity {
                     } else {
                         Toast.makeText(VideoActivity.this, "设备未连接，请先连接设备", Toast.LENGTH_SHORT).show();
                     }
-                    break;
-                case R.id.phone :
                     break;
                 case R.id.cancel :
                     popupWindow.dismiss();
@@ -301,7 +299,8 @@ public class VideoActivity extends Activity {
                 case 0x001 :
                     count ++;
                     if(count < choseFiles.size()) {
-                        fileCount.setText("共" + choseFiles.size() + "项, 第" + count + 1 + "项");
+                        int currentCount = count + 1;
+                        fileCount.setText("共" + choseFiles.size() + "项, 第" + currentCount + "项");
                         File file = new File(choseFiles.get(count).getFilePath());
                         try {
                             max = new FileInputStream(file).available();
@@ -382,7 +381,10 @@ public class VideoActivity extends Activity {
     public void initView(){
         gridView = (GridView) findViewById(R.id.gridView);
         back = (LinearLayout) findViewById(R.id.back);
+        TextView fileName = (TextView) findViewById(R.id.fileName);
+        fileName.setText(R.string.video);
         search = (LinearLayout) findViewById(R.id.search);
+        search.setVisibility(View.GONE);
         edit = (LinearLayout) findViewById(R.id.edit);
         copy = (LinearLayout) findViewById(R.id.copy);
         move = (LinearLayout) findViewById(R.id.move);

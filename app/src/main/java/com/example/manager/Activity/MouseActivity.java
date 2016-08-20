@@ -248,10 +248,10 @@ public class MouseActivity extends Activity {
     }
 
     public void initViews(){
-        textView = (TextView) findViewById(R.id.touchMod);
-        TextView title = (TextView) findViewById(R.id.fileName);
-        LinearLayout search = (LinearLayout) findViewById(R.id.search);
         back = (LinearLayout) findViewById(R.id.back);
+        TextView title = (TextView) findViewById(R.id.fileName);
+        title.setText("鼠标");
+        textView = (TextView) findViewById(R.id.touchMod);
         up = (LinearLayout) findViewById(R.id.up);
         left = (LinearLayout) findViewById(R.id.left);
         down = (LinearLayout) findViewById(R.id.down);
@@ -260,8 +260,6 @@ public class MouseActivity extends Activity {
         end = (LinearLayout) findViewById(R.id.end);
         leftClick = (Button) findViewById(R.id.leftClick);
         rightClick = (Button) findViewById(R.id.rightClick);
-        search.setVisibility(View.GONE);
-        title.setText("鼠标");
         gestureDetector = new GestureDetector(this, new GestureListener());
         app = (App) getApplication();
     }

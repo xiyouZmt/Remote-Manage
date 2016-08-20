@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -52,7 +53,6 @@ public class StorageActivity extends Activity {
     private App app;
     private ListView listView;
     private LinearLayout back;
-    private LinearLayout search;
     private LinearLayout edit;
     private LinearLayout copy;
     private LinearLayout move;
@@ -62,37 +62,24 @@ public class StorageActivity extends Activity {
     private LoadFile loadFile;
     private String style;
     private String path;
-    private StorageHandler storageHandler;
     private PopupWindow popupWindow;
     private RelativeLayout progress_background;
     private CircleProgress circleProgress;
     private TextView fileCount;
     private ProgressDialog progressDialog;
     private StorageAdapter storageAdapter;
-    public  static List<MediaFiles> choseFiles;
     public  int pos = 0;
     private int max = 0;
     private int count = 0;
     private double temp = 0;
     private boolean hasChoseAll;
     public  static String TAG = "";
+    public  static List<MediaFiles> choseFiles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intent;
-        if((intent = getIntent()) != null) {
-            switch (intent.getStringExtra("storage")) {
-                case "in":
-                    ActionBarUtil.initActionBar(getActionBar(), getResources().getString(R.string.storage_in), 0x000);
-                    style = "in";
-                    break;
-                case "out":
-                    ActionBarUtil.initActionBar(getActionBar(), getResources().getString(R.string.storage_out), 0x000);
-                    style = "out";
-                    break;
-            }
-        }
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.filelist);
         initView();
         setListener();
@@ -152,6 +139,67 @@ public class StorageActivity extends Activity {
         }
     }
 
+    private Handler storageHandler = new Handler(){
+
+        public void handleMessage(Message msg){
+            switch (msg.what){
+                case 0x000 :
+                    int i = msg.arg1 * 100 / max;
+                    if(i >= 1){
+                        String percentage = String.valueOf(i);
+                        circleProgress.setProgress(circleProgress.getProgress() + Integer.parseInt(percentage));
+                    } else {
+                        double d = (double)msg.arg1 * 100 / max;
+                        temp += d;
+                        if(temp >= 1){
+                            String percentage = String.valueOf((int)temp);
+                            circleProgress.setProgress(circleProgress.getProgress() + Integer.parseInt(percentage));
+                            temp = 0;
+                        }
+                    }
+                    break;
+                case 0x001 :
+                    count ++;
+                    if(count < choseFiles.size()) {
+                        int currentCount = count + 1;
+                        fileCount.setText("共" + choseFiles.size() + "项, 第" + currentCount + "项");
+                        File file = new File(choseFiles.get(count).getFilePath());
+                        try {
+                            max = new FileInputStream(file).available();
+                        } catch (IOException e) {
+                            Log.e("io error--->", e.toString());
+                        }
+                        SendFile ft = new SendFile(app.getUser().socket, app.getUser().IP, app.getUser().port, file, storageHandler);
+                        Thread t = new Thread(ft, "SendFile");
+                        t.start();
+                    } else {
+                        progress_background.setVisibility(View.GONE);
+                        count = 0;
+                        if(hasChoseAll){
+                            for (i = 0; i < loadFile.getStorage().size(); i++) {
+                                loadFile.getStorage().get(i).count = 0;
+                            }
+                        } else {
+                            for (i = 0; i < choseFiles.size(); i++) {
+                                choseFiles.get(i).count = 0;
+                            }
+                        }
+                        choseFiles.clear();
+                        storageAdapter.notifyDataSetChanged();
+                        circleProgress.setProgress(0);
+                        Toast.makeText(StorageActivity.this, "传输完成!", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case 0x333 :
+                    progressDialog.dismiss();
+                    app.getUser().connected = false;
+                    circleProgress.setProgress(0);
+                    Toast.makeText(StorageActivity.this, "连接失败，请重新连接", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
+
     public class StorageListener implements View.OnClickListener{
 
         @Override
@@ -160,9 +208,6 @@ public class StorageActivity extends Activity {
             switch (v.getId()){
                 case R.id.back :
                     finish();
-                    break;
-                case R.id.search :
-
                     break;
                 case R.id.copy :
                     intent.setClass(StorageActivity.this, OperateActivity.class);
@@ -178,11 +223,9 @@ public class StorageActivity extends Activity {
                     break;
                 case R.id.share :
                     View view = getLayoutInflater().inflate(R.layout.choose_type, null);
-                    Button toPc = (Button) view.findViewById(R.id.pc);
-                    Button toPhone = (Button) view.findViewById(R.id.phone);
+                    Button commit = (Button) view.findViewById(R.id.commit);
                     Button cancel = (Button) view.findViewById(R.id.cancel);
-                    toPc.setOnClickListener(new ShareListener());
-                    toPhone.setOnClickListener(new ShareListener());
+                    commit.setOnClickListener(new ShareListener());
                     cancel.setOnClickListener(new ShareListener());
                     popupWindow.setContentView(view);
                     popupWindow.showAtLocation(view, Gravity.BOTTOM, 0, 0);
@@ -230,7 +273,7 @@ public class StorageActivity extends Activity {
         public void onClick(View v) {
             popupWindow.dismiss();
             switch (v.getId()){
-                case R.id.pc :
+                case R.id.commit :
                     if(app.getUser().connected) {
                         edit.setVisibility(View.GONE);
                         progress_background.setVisibility(View.VISIBLE);
@@ -251,8 +294,6 @@ public class StorageActivity extends Activity {
                     } else {
                         Toast.makeText(StorageActivity.this, "设备未连接，请先连接设备", Toast.LENGTH_SHORT).show();
                     }
-                    break;
-                case R.id.phone :
                     break;
                 case R.id.cancel :
                     popupWindow.dismiss();
@@ -367,66 +408,6 @@ public class StorageActivity extends Activity {
         }
     }
 
-    public class StorageHandler extends Handler{
-
-        public void handleMessage(Message msg){
-            switch (msg.what){
-                case 0x000 :
-                    int i = msg.arg1 * 100 / max;
-                    if(i >= 1){
-                        String percentage = String.valueOf(i);
-                        circleProgress.setProgress(circleProgress.getProgress() + Integer.parseInt(percentage));
-                    } else {
-                        double d = (double)msg.arg1 * 100 / max;
-                        temp += d;
-                        if(temp >= 1){
-                            String percentage = String.valueOf((int)temp);
-                            circleProgress.setProgress(circleProgress.getProgress() + Integer.parseInt(percentage));
-                            temp = 0;
-                        }
-                    }
-                    break;
-                case 0x001 :
-                    count ++;
-                    if(count < choseFiles.size()) {
-                        fileCount.setText("共" + choseFiles.size() + "项, 第" + count + 1 + "项");
-                        File file = new File(choseFiles.get(count).getFilePath());
-                        try {
-                            max = new FileInputStream(file).available();
-                        } catch (IOException e) {
-                            Log.e("io error--->", e.toString());
-                        }
-                        SendFile ft = new SendFile(app.getUser().socket, app.getUser().IP, app.getUser().port, file, storageHandler);
-                        Thread t = new Thread(ft, "SendFile");
-                        t.start();
-                    } else {
-                        progress_background.setVisibility(View.GONE);
-                        count = 0;
-                        if(hasChoseAll){
-                            for (i = 0; i < loadFile.getStorage().size(); i++) {
-                                loadFile.getStorage().get(i).count = 0;
-                            }
-                        } else {
-                            for (i = 0; i < choseFiles.size(); i++) {
-                                choseFiles.get(i).count = 0;
-                            }
-                        }
-                        choseFiles.clear();
-                        storageAdapter.notifyDataSetChanged();
-                        circleProgress.setProgress(0);
-                        Toast.makeText(StorageActivity.this, "传输完成!", Toast.LENGTH_SHORT).show();
-                    }
-                    break;
-                case 0x333 :
-                    progressDialog.dismiss();
-                    app.getUser().connected = false;
-                    circleProgress.setProgress(0);
-                    Toast.makeText(StorageActivity.this, "连接失败，请重新连接", Toast.LENGTH_SHORT).show();
-                    break;
-            }
-        }
-    }
-
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK){
@@ -476,7 +457,6 @@ public class StorageActivity extends Activity {
 
     public void setListener(){
         back.setOnClickListener(new StorageListener());
-        search.setOnClickListener(new StorageListener());
         copy.setOnClickListener(new StorageListener());
         move.setOnClickListener(new StorageListener());
         share.setOnClickListener(new StorageListener());
@@ -487,7 +467,17 @@ public class StorageActivity extends Activity {
 
     public void initView(){
         back = (LinearLayout) findViewById(R.id.back);
-        search = (LinearLayout) findViewById(R.id.search);
+        TextView fileName = (TextView) findViewById(R.id.fileName);
+        switch (getIntent().getStringExtra("storage")) {
+            case "in":
+                fileName.setText(R.string.storage_in);
+                style = "in";
+                break;
+            case "out":
+                fileName.setText(R.string.storage_out);
+                style = "out";
+                break;
+        }
         edit = (LinearLayout) findViewById(R.id.edit);
         copy = (LinearLayout) findViewById(R.id.copy);
         move = (LinearLayout) findViewById(R.id.move);
@@ -497,7 +487,6 @@ public class StorageActivity extends Activity {
         listView = (ListView) findViewById(R.id.fileList);
         loadFile = new LoadFile(StorageActivity.this);
         choseFiles = new ArrayList<>();
-        storageHandler = new StorageHandler();
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         popupWindow = new PopupWindow(StorageActivity.this);
         popupWindow.setWidth((int) (displayMetrics.widthPixels * 0.9));
@@ -514,5 +503,4 @@ public class StorageActivity extends Activity {
         progressDialog.setCanceledOnTouchOutside(false);
         app = (App) getApplication();
     }
-
 }

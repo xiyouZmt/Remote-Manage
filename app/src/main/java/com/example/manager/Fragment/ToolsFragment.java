@@ -46,9 +46,9 @@ public class ToolsFragment extends Fragment {
     private LinearLayout linear_search;
     private LinearLayout linear_screen;
     private Button connect;
-    private int pos = 0;
     private String power;
     private String type ;
+    private int pos = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -139,9 +139,6 @@ public class ToolsFragment extends Fragment {
                 case R.id.linear_speech :
                     Speech speech = new Speech(getActivity(), app);
                     speech.GetWordFromVoice();
-//                    VoiceToWord voiceToWord = new VoiceToWord(getActivity(), app.getUser().appId);
-//                    voiceToWord.GetWordFromVoice();
-
                     break;
                 case R.id.linear_computer :
                     String data = "{\"command\":\"driver\",\"operation\":\"getDisk\"}";
@@ -208,10 +205,6 @@ public class ToolsFragment extends Fragment {
                     }).create().show();
                     break;
                 case R.id.linear_search :
-//                    popupWindow = new PopupWindow(searchWindow, dpToPx(300), dpToPx(110), true);
-//                    popupWindow.setBackgroundDrawable(new ColorDrawable()); //也可为0x00000000，完全透明
-//                    popupWindow.showAtLocation(searchWindow, Gravity.CENTER, 0, 0);
-//                    View searchView = LayoutInflater.from(getContext()).inflate(R.layout.search_window, null);
                     View searchWindow = getActivity().getLayoutInflater().inflate(R.layout.search_window, null);
                     Button submit = (Button) searchWindow.findViewById(R.id.submit);
                     keyWords = (EditText) searchWindow.findViewById(R.id.keyWords);
@@ -316,5 +309,4 @@ public class ToolsFragment extends Fragment {
         SeekBar seekBar = (SeekBar) volume_brightness.findViewById(R.id.seekBar);
         seekBar.setOnSeekBarChangeListener(new SeekBarListener());
     }
-
 }

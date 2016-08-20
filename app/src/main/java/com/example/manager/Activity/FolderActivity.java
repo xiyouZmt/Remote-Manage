@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.example.manager.Adapter.FolderAdapter;
 import com.example.manager.Utils.ActionBarUtil;
@@ -22,7 +24,6 @@ public class FolderActivity extends Activity{
 
     private GridView gridView;
     private LinearLayout back;
-    private LinearLayout search;
     private RelativeLayout no_files_image;
     private RelativeLayout no_files_text;
     private FolderAdapter imageAdapter;
@@ -32,7 +33,7 @@ public class FolderActivity extends Activity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActionBarUtil.initActionBar(getActionBar(), getResources().getString(R.string.image), 0x222);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.folder_layout);
         initView();
         setListener();
@@ -97,18 +98,16 @@ public class FolderActivity extends Activity{
 
     public void setListener(){
         back.setOnClickListener(new ImageListener());
-        search.setOnClickListener(new ImageListener());
         gridView.setOnItemClickListener(new ItemClickListener());
     }
 
     public void initView(){
-        gridView = (GridView) findViewById(R.id.gridView);
         back = (LinearLayout) findViewById(R.id.back);
-        search = (LinearLayout) findViewById(R.id.search);
+        TextView fileName = (TextView) findViewById(R.id.fileName);
+        fileName.setText(R.string.image);
+        gridView = (GridView) findViewById(R.id.gridView);
         no_files_image = (RelativeLayout) findViewById(R.id.no_files_image);
         no_files_text = (RelativeLayout) findViewById(R.id.no_files_text);
         loadFile = new LoadFile(FolderActivity.this);
-        search.setVisibility(View.GONE);
     }
-
 }

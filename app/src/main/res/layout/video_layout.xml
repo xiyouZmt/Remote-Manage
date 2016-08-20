@@ -5,9 +5,12 @@
     android:layout_height="match_parent"
     android:background="@color/color_e">
 
+    <include layout="@layout/actionbar"/>
+
     <GridView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/actionbar"
         android:horizontalSpacing="3dp"
         android:verticalSpacing="3dp"
         android:layout_margin="3dp"

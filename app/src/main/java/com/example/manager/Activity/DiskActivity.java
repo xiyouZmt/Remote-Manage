@@ -107,8 +107,6 @@ public class DiskActivity extends Activity {
         back = (LinearLayout) findViewById(R.id.back);
         listView = (ListView) findViewById(R.id.driverList);
         TextView title = (TextView) findViewById(R.id.fileName);
-        LinearLayout search = (LinearLayout) findViewById(R.id.search);
-        search.setVisibility(View.GONE);
         title.setText("电脑磁盘");
         listView.setOnItemClickListener(new ItemListener());
         driverList = new ArrayList<>();
@@ -117,5 +115,4 @@ public class DiskActivity extends Activity {
         progressDialog.setMessage("加载中...");
         handler = new DriverHandler();
     }
-
 }

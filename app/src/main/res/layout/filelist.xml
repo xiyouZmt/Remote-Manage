@@ -5,27 +5,18 @@
     android:layout_height="match_parent"
     android:background="@color/color_e">
 
+    <include layout="@layout/actionbar"/>
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/actionbar"
         android:id="@+id/fileList"
         android:dividerHeight="0.5dp"
         android:divider="@color/color_c"
         android:background="@color/color_f">
 
     </ListView>
-
-    <!--<com.example.manager.Utils.ArcProgress-->
-        <!--android:layout_width="150dp"-->
-        <!--android:layout_height="150dp"-->
-        <!--android:layout_centerInParent="true"-->
-        <!--android:id="@+id/progress"-->
-        <!--android:background="@drawable/connect_device"-->
-        <!--android:visibility="gone"-->
-        <!--custom:arc_suffix_text_padding="5dp"-->
-        <!--custom:arc_bottom_text="上传中..."-->
-        <!--custom:arc_bottom_text_size="16sp"-->
-        <!--custom:arc_text_color="@color/color_e" />-->
 
     <RelativeLayout
         android:layout_width="match_parent"

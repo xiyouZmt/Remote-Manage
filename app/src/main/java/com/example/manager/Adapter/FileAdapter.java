@@ -23,14 +23,12 @@ import java.util.List;
 public class FileAdapter extends BaseAdapter {
 
     private Context context;
-    private LoadFile loadFile;
     private List<MediaFiles> fileList;
     private List<MediaFiles> choseFiles;
     private LinearLayout edit;
 
-    public FileAdapter(Context context, LoadFile loadFile, List<MediaFiles> fileList,  List<MediaFiles> choseFiles, LinearLayout edit){
+    public FileAdapter(Context context, List<MediaFiles> fileList,  List<MediaFiles> choseFiles, LinearLayout edit){
         this.context = context;
-        this.loadFile = loadFile;
         this.fileList = fileList;
         this.choseFiles = choseFiles;
         this.edit = edit;

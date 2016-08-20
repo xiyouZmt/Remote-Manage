@@ -79,8 +79,6 @@ public class MusicActivity extends Activity {
     private CircleProgress circleProgress;
     private TextView fileCount;
     private FileAdapter musicAdapter;
-    private MusicHandler musicHandler;
-    private ProgressDialog progressDialog;
     private int count = 0;
     private int max = 0;
     private boolean hasChoseAll = false;
@@ -91,14 +89,14 @@ public class MusicActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActionBarUtil.initActionBar(getActionBar(), getResources().getString(R.string.music), 0x222);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.filelist);
         initView();
         setListener();
         Cursor cursor = loadFile.loadMusic(getContentResolver());
         if(cursor != null && cursor.getCount() != 0) {
             cursor.close();
-            musicAdapter = new FileAdapter(getApplicationContext(), loadFile, loadFile.getMusicList(), choseFiles, edit);
+            musicAdapter = new FileAdapter(getApplicationContext(), loadFile.getMusicList(), choseFiles, edit);
             listView.setAdapter(musicAdapter);
         } else {
             loadFile.addView(no_files_image, no_files_text, R.drawable.no_music);
@@ -131,6 +129,56 @@ public class MusicActivity extends Activity {
         }
     }
 
+    private Handler musicHandler = new Handler(){
+
+        public void handleMessage(Message msg){
+            switch (msg.what){
+                case 0x000 :
+                    int x = msg.arg1 * 100 / max;
+                    String percentage = String.valueOf(msg.arg1 * 100 / max);
+                    circleProgress.setProgress(circleProgress.getProgress() + Integer.parseInt(percentage));
+                    break;
+                case 0x001 :
+                    count ++;
+                    if(count < choseFiles.size()) {
+                        int currentCount = count + 1;
+                        fileCount.setText("共" + choseFiles.size() + "项, 第" + currentCount + "项");
+                        File file = new File(choseFiles.get(count).getFilePath());
+                        try {
+                            max = new FileInputStream(file).available();
+                        } catch (IOException e) {
+                            Log.e("io error--->", e.toString());
+                        }
+                        SendFile ft = new SendFile(app.getUser().socket, app.getUser().IP, app.getUser().port, file, musicHandler);
+                        Thread t = new Thread(ft, "SendFile");
+                        t.start();
+                    } else {
+                        progress_background.setVisibility(View.GONE);
+                        count = 0;
+                        if(hasChoseAll){
+                            for (int i = 0; i < loadFile.getMusicList().size(); i++) {
+                                loadFile.getMusicList().get(i).count = 0;
+                            }
+                        } else {
+                            for (int i = 0; i < choseFiles.size(); i++) {
+                                choseFiles.get(i).count = 0;
+                            }
+                        }
+                        choseFiles.clear();
+                        musicAdapter.notifyDataSetChanged();
+                        circleProgress.setProgress(0);
+                        Toast.makeText(MusicActivity.this, "传输完成!", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case 0x333 :
+                    app.getUser().connected = false;
+                    circleProgress.setProgress(0);
+                    Toast.makeText(MusicActivity.this, "连接失败，请重新连接", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
+
     public class MusicListener implements View.OnClickListener{
 
         @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -149,9 +197,8 @@ public class MusicActivity extends Activity {
                 case R.id.cancel :
                     relative_search.setVisibility(View.GONE);
                     search.setVisibility(View.VISIBLE);
-                    isSearching = false;
-                    musicAdapter = new FileAdapter(getApplicationContext(), loadFile, loadFile.getMusicList(), choseFiles, edit);
                     listView.setAdapter(musicAdapter);
+                    isSearching = false;
                     break;
                 case R.id.copy :
                     intent.setClass(MusicActivity.this, OperateActivity.class);
@@ -167,11 +214,9 @@ public class MusicActivity extends Activity {
                     break;
                 case R.id.share :
                     View view = getLayoutInflater().inflate(R.layout.choose_type, null);
-                    Button toPc = (Button) view.findViewById(R.id.pc);
-                    Button toPhone = (Button) view.findViewById(R.id.phone);
+                    Button commit = (Button) view.findViewById(R.id.commit);
                     Button cancel = (Button) view.findViewById(R.id.cancel);
-                    toPc.setOnClickListener(new ShareListener());
-                    toPhone.setOnClickListener(new ShareListener());
+                    commit.setOnClickListener(new ShareListener());
                     cancel.setOnClickListener(new ShareListener());
                     popupWindow.setContentView(view);
                     popupWindow.showAtLocation(view, Gravity.BOTTOM, 0, 0);
@@ -219,7 +264,7 @@ public class MusicActivity extends Activity {
         public void onClick(View v) {
             popupWindow.dismiss();
             switch (v.getId()){
-                case R.id.pc :
+                case R.id.commit :
                     if(app.getUser().connected) {
                         edit.setVisibility(View.GONE);
                         progress_background.setVisibility(View.VISIBLE);
@@ -236,8 +281,6 @@ public class MusicActivity extends Activity {
                     } else {
                         Toast.makeText(MusicActivity.this, "设备未连接，请先连接设备", Toast.LENGTH_SHORT).show();
                     }
-                    break;
-                case R.id.phone :
                     break;
                 case R.id.cancel :
                     popupWindow.dismiss();
@@ -258,7 +301,7 @@ public class MusicActivity extends Activity {
                 list = loadFile.getMusicList();
             }
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            Uri uri = Uri.parse("file://" + loadFile.getMusicList().get(position).getFilePath());
+            Uri uri = Uri.parse("file://" + list.get(position).getFilePath());
             intent.setDataAndType(uri, "audio/*");
             startActivity(intent);
         }
@@ -322,58 +365,8 @@ public class MusicActivity extends Activity {
                     searchList.add(file);
                 }
             }
-            FileAdapter fileAdapter = new FileAdapter(getApplicationContext(), loadFile, loadFile.getMusicList(), choseFiles, edit);
+            FileAdapter fileAdapter = new FileAdapter(getApplicationContext(), searchList, choseFiles, edit);
             listView.setAdapter(fileAdapter);
-        }
-    }
-
-    public class MusicHandler extends Handler{
-
-        public void handleMessage(Message msg){
-            switch (msg.what){
-                case 0x000 :
-                    int x = msg.arg1 * 100 / max;
-                    String percentage = String.valueOf(msg.arg1 * 100 / max);
-                    circleProgress.setProgress(circleProgress.getProgress() + Integer.parseInt(percentage));
-                    break;
-                case 0x001 :
-                    count ++;
-                    if(count < choseFiles.size()) {
-                        fileCount.setText("共" + choseFiles.size() + "项, 第" + count + 1 + "项");
-                        File file = new File(choseFiles.get(count).getFilePath());
-                        try {
-                            max = new FileInputStream(file).available();
-                        } catch (IOException e) {
-                            Log.e("io error--->", e.toString());
-                        }
-                        SendFile ft = new SendFile(app.getUser().socket, app.getUser().IP, app.getUser().port, file, musicHandler);
-                        Thread t = new Thread(ft, "SendFile");
-                        t.start();
-                    } else {
-                        progress_background.setVisibility(View.GONE);
-                        count = 0;
-                        if(hasChoseAll){
-                            for (int i = 0; i < loadFile.getMusicList().size(); i++) {
-                                loadFile.getMusicList().get(i).count = 0;
-                            }
-                        } else {
-                            for (int i = 0; i < choseFiles.size(); i++) {
-                                choseFiles.get(i).count = 0;
-                            }
-                        }
-                        choseFiles.clear();
-                        musicAdapter.notifyDataSetChanged();
-                        circleProgress.setProgress(0);
-                        Toast.makeText(MusicActivity.this, "传输完成!", Toast.LENGTH_SHORT).show();
-                    }
-                    break;
-                case 0x333 :
-                    progressDialog.dismiss();
-                    app.getUser().connected = false;
-                    circleProgress.setProgress(0);
-                    Toast.makeText(MusicActivity.this, "连接失败，请重新连接", Toast.LENGTH_SHORT).show();
-                    break;
-            }
         }
     }
 
@@ -391,7 +384,12 @@ public class MusicActivity extends Activity {
             }
             musicAdapter.notifyDataSetChanged();
             edit.setVisibility(View.GONE);
-        } else {
+        } else if(isSearching && editText.getText().toString().equals("")){
+            relative_search.setVisibility(View.GONE);
+            search.setVisibility(View.VISIBLE);
+            listView.setAdapter(musicAdapter);
+            isSearching = false;
+        } else if(search.getVisibility() == View.VISIBLE){
             finish();
         }
         return true;
@@ -411,12 +409,13 @@ public class MusicActivity extends Activity {
     }
 
     public void initView(){
-        listView = (ListView) findViewById(R.id.fileList);
         back = (LinearLayout) findViewById(R.id.back);
         search = (LinearLayout) findViewById(R.id.search);
+        search.setVisibility(View.VISIBLE);
         relative_search = (RelativeLayout) findViewById(R.id.relative_search);
         editText = (EditText) findViewById(R.id.editText);
         cancel = (LinearLayout) findViewById(R.id.cancel);
+        listView = (ListView) findViewById(R.id.fileList);
         edit = (LinearLayout) findViewById(R.id.edit);
         copy = (LinearLayout) findViewById(R.id.copy);
         move = (LinearLayout) findViewById(R.id.move);
@@ -429,8 +428,7 @@ public class MusicActivity extends Activity {
         loadFile = new LoadFile(MusicActivity.this);
         choseFiles = new ArrayList<>();
         searchList = new ArrayList<>();
-        musicHandler = new MusicHandler();
-        progressDialog = new ProgressDialog(this);
+
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         popupWindow = new PopupWindow(MusicActivity.this);
         popupWindow.setWidth((int) (displayMetrics.widthPixels * 0.9));
@@ -439,12 +437,10 @@ public class MusicActivity extends Activity {
         popupWindow.setFocusable(true);
         popupWindow.setOutsideTouchable(true);
         popupWindow.setAnimationStyle(R.style.share_style);
+
         progress_background = (RelativeLayout) findViewById(R.id.progress_background);
         circleProgress = (CircleProgress) findViewById(R.id.progress);
         fileCount = (TextView) findViewById(R.id.fileCount);
-        progressDialog.setMessage("传输中...");
-        progressDialog.setCanceledOnTouchOutside(false);
         app = (App)getApplication();
     }
-
 }

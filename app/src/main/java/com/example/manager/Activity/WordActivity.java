@@ -10,13 +10,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -48,8 +52,12 @@ public class WordActivity extends Activity {
     private ListView listView;
     private LinearLayout back;
     private LinearLayout search;
+    private LinearLayout cancel;
+    private RelativeLayout relative_search;
+    private EditText editText;
     private LoadFile loadFile;
     private List<MediaFiles> wordList;
+    private List<MediaFiles> searchList;
     private LinearLayout edit;
     private LinearLayout copy;
     private LinearLayout move;
@@ -63,10 +71,10 @@ public class WordActivity extends Activity {
     private CircleProgress circleProgress;
     private TextView fileCount;
     private ProgressDialog progressDialog;
-    private WordHandler wordHandler;
     private FileAdapter fileAdapter;
     private String style;
     public  static List<MediaFiles> choseFiles;
+    private boolean isSearching = false;
     private boolean hasChoseAll = false;
     private int count = 0;
     private int max = 0;
@@ -75,20 +83,7 @@ public class WordActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        switch (getIntent().getStringExtra("style")){
-            case "文档" :
-                ActionBarUtil.initActionBar(getActionBar(), "文档", 0x222);
-                style = getResources().getString(R.string.word);
-                break;
-            case "压缩包" :
-                ActionBarUtil.initActionBar(getActionBar(), "压缩包", 0x222);
-                style = getResources().getString(R.string.zip);
-                break;
-            case "安装包" :
-                ActionBarUtil.initActionBar(getActionBar(), "安装包", 0x222);
-                style = getResources().getString(R.string.apk);
-                break;
-        }
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.filelist);
         initView();
         setListener();
@@ -126,40 +121,13 @@ public class WordActivity extends Activity {
         }
     }
 
-    public class WordThread implements Runnable{
-
-        private String style;
-
-        public WordThread(String style) {
-            this.style = style;
-        }
-
-        @Override
-        public void run() {
-            switch (style){
-                case "文档" :
-                    wordList = loadFile.loadWord(getContentResolver());
-                    wordHandler.sendEmptyMessage(0x011);
-                    break;
-                case "压缩包" :
-                    wordList = loadFile.loadZip(getContentResolver());
-                    wordHandler.sendEmptyMessage(0x111);
-                    break;
-                case "安装包" :
-                    wordList = loadFile.loadApk(getContentResolver());
-                    wordHandler.sendEmptyMessage(0x222);
-                    break;
-            }
-        }
-    }
-
-    public class WordHandler extends Handler{
+    private Handler wordHandler = new Handler(){
         public void handleMessage(Message msg){
             progressDialog.cancel();
             switch (msg.what) {
                 case 0x011 :
                     if (!wordList.isEmpty()) {
-                        fileAdapter = new FileAdapter(getApplicationContext(), loadFile, wordList, choseFiles, edit);
+                        fileAdapter = new FileAdapter(getApplicationContext(), wordList, choseFiles, edit);
                         listView.setAdapter(fileAdapter);
                     } else {
                         loadFile.addView(no_files_image, no_files_text, R.drawable.word);
@@ -167,7 +135,7 @@ public class WordActivity extends Activity {
                     break;
                 case 0x111 :
                     if (!wordList.isEmpty()) {
-                        fileAdapter = new FileAdapter(getApplicationContext(), loadFile, wordList, choseFiles, edit);
+                        fileAdapter = new FileAdapter(getApplicationContext(), wordList, choseFiles, edit);
                         listView.setAdapter(fileAdapter);
                     } else {
                         loadFile.addView(no_files_image, no_files_text, R.drawable.zip);
@@ -175,7 +143,7 @@ public class WordActivity extends Activity {
                     break;
                 case 0x222 :
                     if (!wordList.isEmpty()) {
-                        fileAdapter = new FileAdapter(getApplicationContext(), loadFile, wordList, choseFiles, edit);
+                        fileAdapter = new FileAdapter(getApplicationContext(), wordList, choseFiles, edit);
                         listView.setAdapter(fileAdapter);
                     } else {
                         loadFile.addView(no_files_image, no_files_text, R.drawable.apk);
@@ -188,7 +156,8 @@ public class WordActivity extends Activity {
                 case 0x001 :
                     count ++;
                     if(count < choseFiles.size()) {
-                        fileCount.setText("共" + choseFiles.size() + "项, 第" + count + 1 + "项");
+                        int currentCount = count + 1;
+                        fileCount.setText("共" + choseFiles.size() + "项, 第" + currentCount + "项");
                         File file = new File(choseFiles.get(count).getFilePath());
                         try {
                             max = new FileInputStream(file).available();
@@ -224,7 +193,7 @@ public class WordActivity extends Activity {
                     break;
             }
         }
-    }
+    };
 
     public class WordListener implements View.OnClickListener{
 
@@ -236,7 +205,15 @@ public class WordActivity extends Activity {
                     finish();
                     break;
                 case R.id.search :
-
+                    search.setVisibility(View.GONE);
+                    relative_search.setVisibility(View.VISIBLE);
+                    isSearching = true;
+                    break;
+                case R.id.cancel :
+                    relative_search.setVisibility(View.GONE);
+                    search.setVisibility(View.VISIBLE);
+                    listView.setAdapter(fileAdapter);
+                    isSearching = false;
                     break;
                 case R.id.copy :
                     intent.setClass(WordActivity.this, OperateActivity.class);
@@ -252,24 +229,12 @@ public class WordActivity extends Activity {
                     break;
                 case R.id.share :
                     View view = getLayoutInflater().inflate(R.layout.choose_type, null);
-                    Button toPc = (Button) view.findViewById(R.id.pc);
-                    Button toPhone = (Button) view.findViewById(R.id.phone);
+                    Button commit = (Button) view.findViewById(R.id.commit);
                     Button cancel = (Button) view.findViewById(R.id.cancel);
-                    toPc.setOnClickListener(new ShareListener());
-                    toPhone.setOnClickListener(new ShareListener());
+                    commit.setOnClickListener(new ShareListener());
                     cancel.setOnClickListener(new ShareListener());
                     popupWindow.setContentView(view);
                     popupWindow.showAtLocation(view, Gravity.BOTTOM, 0, 0);
-//                    if(app.getUser().connected) {
-//                        progressDialog.setMessage("传输中...");
-//                        progressDialog.show();
-//                        File file = new File(choseFiles.get(0).getFilePath());
-//                        SendFile ft = new SendFile(app.getUser().socket, app.getUser().IP, app.getUser().port, file, wordHandler);
-//                        Thread t = new Thread(ft, "SendFile");
-//                        t.start();
-//                    } else {
-//                        Toast.makeText(WordActivity.this, "设备未连接，请先连接设备", Toast.LENGTH_SHORT).show();
-//                    }
                     break;
                 case R.id.delete :
                     AlertDialog.Builder dialog = new AlertDialog.Builder(WordActivity.this);
@@ -314,7 +279,7 @@ public class WordActivity extends Activity {
         public void onClick(View v) {
             popupWindow.dismiss();
             switch (v.getId()){
-                case R.id.pc :
+                case R.id.commit :
                     if(app.getUser().connected) {
                         edit.setVisibility(View.GONE);
                         progress_background.setVisibility(View.VISIBLE);
@@ -331,8 +296,6 @@ public class WordActivity extends Activity {
                     } else {
                         Toast.makeText(WordActivity.this, "设备未连接，请先连接设备", Toast.LENGTH_SHORT).show();
                     }
-                    break;
-                case R.id.phone :
                     break;
                 case R.id.cancel :
                     popupWindow.dismiss();
@@ -404,6 +367,59 @@ public class WordActivity extends Activity {
         }
     }
 
+    public class EditTextListener implements TextWatcher {
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            searchList.clear();
+            for (int i = 0; i < wordList.size(); i++) {
+                MediaFiles file = wordList.get(i);
+                if(file.getFileName().contains(s.toString())){
+                    searchList.add(file);
+                }
+            }
+            FileAdapter fileAdapter = new FileAdapter(getApplicationContext(), searchList, choseFiles, edit);
+            listView.setAdapter(fileAdapter);
+        }
+    }
+
+    public class WordThread implements Runnable{
+
+        private String style;
+
+        public WordThread(String style) {
+            this.style = style;
+        }
+
+        @Override
+        public void run() {
+            switch (style){
+                case "文档" :
+                    wordList = loadFile.loadWord(getContentResolver());
+                    wordHandler.sendEmptyMessage(0x011);
+                    break;
+                case "压缩包" :
+                    wordList = loadFile.loadZip(getContentResolver());
+                    wordHandler.sendEmptyMessage(0x111);
+                    break;
+                case "安装包" :
+                    wordList = loadFile.loadApk(getContentResolver());
+                    wordHandler.sendEmptyMessage(0x222);
+                    break;
+            }
+        }
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(edit.getVisibility() == View.VISIBLE){
@@ -418,7 +434,12 @@ public class WordActivity extends Activity {
             }
             fileAdapter.notifyDataSetChanged();
             edit.setVisibility(View.GONE);
-        } else {
+        } else if(isSearching && editText.getText().toString().equals("")){
+            relative_search.setVisibility(View.GONE);
+            search.setVisibility(View.VISIBLE);
+            listView.setAdapter(fileAdapter);
+            isSearching = false;
+        } else if(search.getVisibility() == View.VISIBLE){
             finish();
         }
         return true;
@@ -427,27 +448,55 @@ public class WordActivity extends Activity {
     public void setListener(){
         back.setOnClickListener(new WordListener());
         search.setOnClickListener(new WordListener());
+        cancel.setOnClickListener(new WordListener());
         copy.setOnClickListener(new WordListener());
         move.setOnClickListener(new WordListener());
         share.setOnClickListener(new WordListener());
         delete.setOnClickListener(new WordListener());
         chooseAll.setOnClickListener(new WordListener());
+        editText.addTextChangedListener(new EditTextListener());
         listView.setOnItemClickListener(new WordListListener());
     }
 
     public void initView(){
-        listView = (ListView) findViewById(R.id.fileList);
         back = (LinearLayout) findViewById(R.id.back);
+        TextView fileName = (TextView) findViewById(R.id.fileName);
+        switch (getIntent().getStringExtra("style")){
+            case "文档" :
+                fileName.setText(R.string.word);
+                style = getResources().getString(R.string.word);
+                break;
+            case "压缩包" :
+                fileName.setText(R.string.zip);
+                style = getResources().getString(R.string.zip);
+                break;
+            case "安装包" :
+                fileName.setText(R.string.apk);
+                style = getResources().getString(R.string.apk);
+                break;
+        }
         search = (LinearLayout) findViewById(R.id.search);
+        search.setVisibility(View.VISIBLE);
+        cancel = (LinearLayout) findViewById(R.id.cancel);
+        editText = (EditText) findViewById(R.id.editText);
+        listView = (ListView) findViewById(R.id.fileList);
         edit = (LinearLayout) findViewById(R.id.edit);
         copy = (LinearLayout) findViewById(R.id.copy);
         move = (LinearLayout) findViewById(R.id.move);
         share = (LinearLayout) findViewById(R.id.share);
         delete = (LinearLayout) findViewById(R.id.delete);
         chooseAll = (LinearLayout) findViewById(R.id.chooseAll);
+        relative_search = (RelativeLayout) findViewById(R.id.relative_search);
         no_files_image = (RelativeLayout) findViewById(R.id.no_files_image);
         no_files_text = (RelativeLayout) findViewById(R.id.no_files_text);
+        progress_background = (RelativeLayout) findViewById(R.id.progress_background);
+        circleProgress = (CircleProgress) findViewById(R.id.progress);
+        fileCount = (TextView) findViewById(R.id.fileCount);
+        progressDialog = new ProgressDialog(WordActivity.this);
+        progressDialog.setCanceledOnTouchOutside(false);
         loadFile = new LoadFile(WordActivity.this);
+        choseFiles = new ArrayList<>();
+        searchList = new ArrayList<>();
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         popupWindow = new PopupWindow(WordActivity.this);
         popupWindow.setWidth((int) (displayMetrics.widthPixels * 0.9));
@@ -456,13 +505,6 @@ public class WordActivity extends Activity {
         popupWindow.setFocusable(true);
         popupWindow.setOutsideTouchable(true);
         popupWindow.setAnimationStyle(R.style.share_style);
-        progress_background = (RelativeLayout) findViewById(R.id.progress_background);
-        circleProgress = (CircleProgress) findViewById(R.id.progress);
-        fileCount = (TextView) findViewById(R.id.fileCount);
-        progressDialog = new ProgressDialog(WordActivity.this);
-        progressDialog.setCanceledOnTouchOutside(false);
-        wordHandler = new WordHandler();
-        choseFiles = new ArrayList<>();
         app = (App)getApplication();
     }
 
