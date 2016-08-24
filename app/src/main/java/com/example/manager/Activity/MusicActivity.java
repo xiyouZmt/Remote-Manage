@@ -382,6 +382,7 @@ public class MusicActivity extends Activity {
                     choseFiles.get(i).count = 0;
                 }
             }
+            choseFiles.clear();
             musicAdapter.notifyDataSetChanged();
             edit.setVisibility(View.GONE);
         } else if(isSearching && editText.getText().toString().equals("")){

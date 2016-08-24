@@ -53,10 +53,16 @@ public class MyRecognizerDialogLister implements RecognizerDialogListener{
 		} else if(text.contains("画")){
 			type = "mspaint";
 		} else if(text.contains("搜索")) {
-			String key = text.substring(text.indexOf("索") + 1);
-			type = "cmd /c start start www.baidu.com/s?wd=" + key;
+			if(text.indexOf("索") < text.length() - 1){
+				String key = text.substring(text.indexOf("索") + 1);
+				type = "cmd /c start start www.baidu.com/s?wd=" + key;
+			} else {
+				type = "cmd /c start start www.baidu.com";
+			}
 		} else if(text.contains("浏览器")) {
 			type = "cmd /c start start www.baidu.com";
+		} else if(!text.equals("") && !text.equals("。")){
+			type = "cmd /c start start www.baidu.com/s?wd=" + text;
 		}
 		if(!type.equals("")){
 			String data = "{'command':'power','type':'" + type + "'}";

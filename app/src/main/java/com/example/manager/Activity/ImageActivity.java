@@ -274,6 +274,7 @@ public class ImageActivity extends Activity {
                     choseFiles.get(i).count = 0;
                 }
             }
+            choseFiles.clear();
             imageAdapter.notifyDataSetChanged();
             edit.setVisibility(View.GONE);
         } else {

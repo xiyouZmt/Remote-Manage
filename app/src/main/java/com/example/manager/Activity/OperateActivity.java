@@ -152,7 +152,7 @@ public class OperateActivity extends Activity {
                         }
                     }
                     break;
-                case R.id.cancel :
+                case R.id.paste_cancel :
                 case R.id.back :
                     finish();
                     break;

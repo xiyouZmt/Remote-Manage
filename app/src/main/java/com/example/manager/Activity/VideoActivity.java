@@ -80,7 +80,6 @@ public class VideoActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        ActionBarUtil.initActionBar(getActionBar(), getResources().getString(R.string.video), 0x222);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.video_layout);
         initView();
@@ -139,9 +138,6 @@ public class VideoActivity extends Activity {
             switch (v.getId()){
                 case R.id.back :
                     finish();
-                    break;
-                case R.id.search :
-
                     break;
                 case R.id.copy :
                     intent.setClass(VideoActivity.this, OperateActivity.class);
@@ -359,6 +355,7 @@ public class VideoActivity extends Activity {
                     choseFiles.get(i).count = 0;
                 }
             }
+            choseFiles.clear();
             videoAdapter.notifyDataSetChanged();
             edit.setVisibility(View.GONE);
         } else {

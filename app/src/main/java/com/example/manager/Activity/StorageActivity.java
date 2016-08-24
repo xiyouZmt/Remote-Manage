@@ -340,6 +340,7 @@ public class StorageActivity extends Activity {
                     case "png" :
                     case "gif" :
                         intent.setDataAndType(uri, "image/*");
+                        break;
                     case "txt" :
                     case "pdf" :
                     case "doc" :
@@ -351,6 +352,7 @@ public class StorageActivity extends Activity {
                         break;
                     case "zip" :
                         intent.setDataAndType(uri, "application/zip");
+                        break;
                     case "rar" :
                         intent.setDataAndType(uri, "application/x-rar-compressed");
                         break;

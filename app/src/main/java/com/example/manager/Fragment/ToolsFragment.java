@@ -218,7 +218,7 @@ public class ToolsFragment extends Fragment {
                     SendCommand screenThread = new SendCommand(app.getUser().socket, app.getUser().IP, app.getUser().port, data);
                     Thread screen = new Thread(screenThread, "SendCommand");
                     screen.start();
-                    Toast.makeText(getActivity(), "截屏成功，已保存至E:/QuickSend", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "截屏成功，已保存至桌面", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.connect :
                     if(app.getUser().connected){

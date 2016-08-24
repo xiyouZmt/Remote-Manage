@@ -432,6 +432,7 @@ public class WordActivity extends Activity {
                     choseFiles.get(i).count = 0;
                 }
             }
+            choseFiles.clear();
             fileAdapter.notifyDataSetChanged();
             edit.setVisibility(View.GONE);
         } else if(isSearching && editText.getText().toString().equals("")){
