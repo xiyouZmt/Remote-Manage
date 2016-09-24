@@ -20,7 +20,7 @@
 * “dvdplay Windows” Windows MediaPlay
 * “write” 写字板
 * “mspaint” 画图板
-* “cmd /c start start www.baidu.com”访问百度
+* “cmd /c start start www.baidu.com” 访问百度
 * “cmd /c start start www.baidu.com/s?wd=xxxxx" 搜索xxxxx
 
 **apk下载地址:http://119.29.242.141/Manager.apk**
