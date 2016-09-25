@@ -4,12 +4,12 @@
     android:layout_height="match_parent"
     android:background="@color/color_f">
 
-    <com.example.manager.ViewPager.MyViewPager
+    <com.zmt.manager.ViewPager.MyViewPager
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/viewPager"
         android:background="@color/color_f">
 
-    </com.example.manager.ViewPager.MyViewPager>
+    </com.zmt.manager.ViewPager.MyViewPager>
 
 </LinearLayout>

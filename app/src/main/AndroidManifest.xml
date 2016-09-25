@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.manager" >
+    package="com.zmt.manager" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -13,13 +13,13 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
-        android:name=".Application.App"
+        android:name="com.zmt.manager.Application.App"
         android:allowBackup="true"
         android:icon="@mipmap/operate"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".Activity.HomeActivity"
+            android:name="com.zmt.manager.Activity.HomeActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,30 +27,30 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activity.MusicActivity" >
+        <activity android:name="com.zmt.manager.Activity.MusicActivity" >
         </activity>
-        <activity android:name=".Activity.VideoActivity" >
+        <activity android:name="com.zmt.manager.Activity.VideoActivity" >
         </activity>
-        <activity android:name=".Activity.WordActivity" >
+        <activity android:name="com.zmt.manager.Activity.WordActivity" >
         </activity>
-        <activity android:name=".Activity.FolderActivity" >
+        <activity android:name="com.zmt.manager.Activity.FolderActivity" >
         </activity>
-        <activity android:name=".Activity.ImageActivity" >
+        <activity android:name="com.zmt.manager.Activity.ImageActivity" >
         </activity>
-        <activity android:name=".Activity.StorageActivity" >
+        <activity android:name="com.zmt.manager.Activity.StorageActivity" >
         </activity>
-        <activity android:name=".Activity.OperateActivity" >
+        <activity android:name="com.zmt.manager.Activity.OperateActivity" >
         </activity>
         <activity
-            android:name=".Activity.MouseActivity"
+            android:name="com.zmt.manager.Activity.MouseActivity"
             android:label="@string/title_activity_mouse" >
         </activity>
         <activity
-            android:name=".Activity.DiskActivity"
+            android:name="com.zmt.manager.Activity.DiskActivity"
             android:label="@string/title_activity_driver_list" >
         </activity>
         <activity
-            android:name=".Activity.PCFileActivity"
+            android:name="com.zmt.manager.Activity.PCFileActivity"
             android:label="@string/title_activity_pcfile_list" >
         </activity>
         <activity

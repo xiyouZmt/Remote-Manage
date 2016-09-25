@@ -42,7 +42,7 @@
             android:singleLine="true"
             android:ellipsize="end"/>
 
-        <com.example.manager.CheckBox.SmoothCheckBox
+        <com.zmt.manager.CheckBox.SmoothCheckBox
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_centerVertical="true"
