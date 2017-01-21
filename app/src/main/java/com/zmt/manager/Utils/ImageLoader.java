@@ -17,8 +17,7 @@ import android.util.Log;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
-public class ImageLoader
-{
+public class ImageLoader {
 	/**
 	 * 图片缓存的核心类
 	 */
@@ -322,7 +321,6 @@ public class ImageLoader
 		imageSize.width = width;
 		imageSize.height = height;
 		return imageSize;
-
 	}
 
 	/**
